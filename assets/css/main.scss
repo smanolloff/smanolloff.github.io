@@ -18,3 +18,35 @@ $max-content-width: {{ site.max_width }};
   "font-awesome/solid",
   "font-awesome/regular"
 ;
+
+// SIMO
+
+// put zoomed image above navbar (1032)
+.medium-zoom-overlay,
+.medium-zoom-image--opened {
+  z-index: 1033;
+}
+
+// Fix background not dimmed when zooming until theme is changed
+// (agter page reload on light theme)
+.medium-zoom--opened .medium-zoom-overlay {
+  background: rgba(28, 28, 29, 0.933);
+}
+
+
+// github uses this for READMEs and it's perfect
+body {
+  font-family: Helvetica
+}
+
+// github uses this for h2 & h3
+.post {
+  h1, h2 {
+    border-bottom: 1px solid var(--global-divider-color);
+  }
+}
+
+// replace blue (looks like links) for inline code
+code, pre code {
+  color: var(--global-text-color);
+}
