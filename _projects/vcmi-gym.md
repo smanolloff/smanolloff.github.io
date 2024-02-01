@@ -9,6 +9,7 @@ related_publications: false
 ---
 
 /// XXX: decide on present or past tense, they're currently mixed up
+/// XXX: decide on units vs stacks, i use both but 5 units can be in 1 stack.
 
 You must have heard about
 [Heroes of Might and Magic III](https://en.wikipedia.org/wiki/Heroes_of_Might_and_Magic_III)
@@ -44,7 +45,7 @@ my eyes sparkled and I knew what my next project was going to be.
 
 The game features scripted AI opponents which are not good at playing the
 game and are no match for an experienced human player. To compensate for that,
-the AI is _cheating_ - ie. starts with more resources, higher-quality fighting
+the AI is _cheating_ - i.e. starts with more resources, higher-quality fighting
 units, fully revealed adventure map, etc. Pretty lame.
 
 ### Objective
@@ -83,7 +84,7 @@ inter-process communication mechanisms to simulate function calls
 
 1. Create a VCMI battle-only RL environment
 * follow the Farama Gymnasium (ex. OpenAI Gym) API standard
-* optimise VCMI w.r.t. performance (eg. no UI, fast restarts, etc.)
+* optimise VCMI w.r.t. performance (e.g. no UI, fast restarts, etc.)
 1. Train a battle-only AI model
 * observation design: find the optimal amount of data to extract for at each
 timestep
@@ -232,7 +233,7 @@ using Wireshark and here's what the raw data looks like:
     ==
     == [32-bit hex dump] // [value in debugger] // [dtype] // [field desc]
 
-    01           // \x01  ui8   hlp (true, ie. not null)
+    01           // \x01  ui8   hlp (true, i.e. not null)
     FA 00        // 250   ui16  tid (typeid)
     00           // \0    ui8   playerColor
     29 00 00 00  // 41    si32  requestID
@@ -339,7 +340,7 @@ controlled by the computer instead). With quick combat enabled, a battle gets
 resolved in under a second, which is a great improvement. Clearly,
 combat **training should be conducted in the form of quick combats**.
 
-But what good is a sub-second combat if restarting it takes 10+ of loading time?
+But what good is a sub-second combat if it takes 10+ seconds to restart?
 
 ##### Quick restarts
 
@@ -348,29 +349,17 @@ setting. Sadly, it allows only a _single manual replay_ per battle and only
 when the enemy is a neutral army - not particularly useful in my case.
 What I need is _infinite quick replays_.
 
-A deeper look into VCMI's internals revels the query stack, where each item
+A deeper look into VCMI's internals reveals the query stack, where each item
 roughly corresponds to an event whose outcome depends on other events which
-might occur in the meantime:
+might occur in the meantime. When the player chooses to restart combat, the
+results from battle query #2 are not applied and the entire query is
+re-inserted back in the stack (with a few special flags set).
 
 <div class="row">
-    <div class="col-sm-8 offset-sm-2 mt-8 offset-mt-2 mt-md-0">
-        {% include figure.liquid path="assets/img/vcmi-gym/querystack.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    <div class="col-sm-7 offset-sm-1 mt-7 offset-mt-1 mt-md-0">
+        {% include figure.liquid path="assets/img/vcmi-gym/querystack.png" class="img-fluid rounded z-depth-1" zoomable=true %}
     </div>
-</div>
-<div class="caption">
-    The VCMI query stack in a typical scenario
-</div>
-
-When the player chooses to restart combat, the results from battle query #2 are
-not applied and the entire query is re-inserted back in the stack (with a few
-special flags set) -- here is how it looks as well as a communication sequence
-diagram:
-
-<div class="row">
-    <div class="col-sm-8 mt-8 mt-md-0">
-        {% include figure.liquid path="assets/img/vcmi-gym/querystack-restart.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
-    </div>
-    <div class="col-sm-4 mt-4 mt-md-0">
+    <div class="col-sm-3 mt-3 mt-md-0">
         {% include figure.liquid path="assets/img/vcmi-gym/diagram-replaybattle-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
     </div>
 </div>
@@ -379,21 +368,19 @@ diagram:
     <a href="{{ 'assets/img/vcmi-gym/diagram-replaybattle-sequence.svg' | relative_url }}" target="_blank">here</a>)
 </div>
 
-Removing the restrictions for restarting a battle involved relatively minor
-code changes and even revealed a
+Removing the restart battle restrictions involved relatively minor code changes
+and even revealed a small
 [memory leak](https://github.com/vcmi/vcmi/issues/953#issuecomment-1787151606)
-in VCMI itself.
-
-Good progress so far, let's back it up with a few numbers.
+in VCMI itself (at least for VCMI v1.3.2, it should already be fixed in v1.4+)
 
 ##### Benchmarks
 
-My simple benchmark setup consists of a simple 2-player micro adventure map
+My poor man's benchmark setup consists of a simple 2-player micro adventure map
 (2x2) where two opposing armies of similar strength (heroes with 7 groups of
 units each) engage in a battle which is restarted immediately after it ends:
 
-<div class="row">
-    <div class="col-sm-8 offset-sm-2 mt-8 offset-mt-2 mt-md-0">
+<div class="row justify-content-md-center">
+    <div class="col-sm-8 mt-8 offset-mt-2 mt-md-0">
         {% include figure.liquid path="assets/img/vcmi-gym/testmap-layout.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
     </div>
 </div>
@@ -402,46 +389,339 @@ units each) engage in a battle which is restarted immediately after it ends:
 </div>
 
 The benchmark was done on my own laptop (M2 Macbook Pro). Here are the
-benchmark measurements:
+measurements:
 * 16.28 battles per per second
 * 862 actions per second (431 per side)
 
-Good enough results for me - there was no need to optimize VCMI further at this
-point. It was about time I started thinking on how to integrate it with with
-Python code.
+The results were good enough for me - there was no need to optimize VCMI
+further at this point. It was about time I started thinking on how to integrate
+it with the Python environment.
 
 #### Embedding VCMI
 
 The [Farama Gymnasium](https://gymnasium.farama.org/) (formerly OpenAI Gym) API
 standard is a Python library that aims to make representing RL problems easier.
 I like it because of its simplicity and wide adoption rate within the python RL
-community (RLlib, StableBaselines, CleanRL are just a few examples). 
+community (RLlib, StableBaselines, CleanRL are a few examples), so I going to
+use it for my RL environment.
 
-Communicating with a C++ program (ie. VCMI) from Python code was a challenge
-for me as I had not done it before. Given that the Python interpreter itself is
-written in C++, it had to be possible. I googled a bit and stumbled upon 
-[pybind11](https://pybind11.readthedocs.io/en/stable/), which definitely looked
-like the tool for the job.
+Communicating with a C++ program (i.e. VCMI) from a Python program was a new
+and exciting challenge for me. Given that the Python interpreter itself is
+written in C++, it had to be possible. I googled a bit and decided to go with
+[pybind11](https://pybind11.readthedocs.io/en/stable/), which looked like the
+tool for the job.
 
+While experimenting with it, I was surprised to find out VCMI can't really be
+*embedded* as it refuses to boot in a non-main thread. Definitely a blocker,
+since the main thread during training is the RL script, not VCMI. Bummer.
 
+A quick investigation revealed that the [SDL](https://www.libsdl.org/) loop
+which renders the graphical user interface (GUI) was responsible for the issue.
+This GUI had to go.
 
+##### Removing the GUI
 
-/// XXX: talk about disabling the entire GUI later, as part of the
-///      SDL main-thread issue
-
-
-
-
-The elephant in the room here is the GUI -- it is not used during training,
-consumes additional hardware resources and (most notably) enforces a limit on
-the overall game speed due to hard-coded framerate restrictions. It has to go.
-
+There have always been many reasons to remove the GUI -- it is not used during
+training, consumes additional hardware resources and enforces a limit on the
+overall game speed due to hard-coded framerate restrictions, so I was more than
+happy to deal with it now that it became necessary.
 
 The VCMI executable accepts a `--headless` flag which causes a runtime
 error as soon as the game is started. Still, the codebase did contain code
 paths for running in such a mode, so making it work properly should be an
-easy win.
+easy win. In the end, I decided to introduce a new build target which defines
+a function which only _initializes_ the SDL (this is required for the game to
+run) and another function which starts the game but _without_ activating the
+SDL render loop.
 
+However, with no GUI, it was hard to see what's going on, so I ended up coding
+a text-based renderer which is pretty useful for visualizing battlefield state
+in the terminal:
 
-=== also: minimal maps (4x4, 2 heroes, 1 town)
-=== also: in-memory only (no disk writes)
+<div class="row">
+    <div class="col">
+        {% include figure.liquid path="assets/img/vcmi-gym/h3-ansi.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    My ANSI text renderer for VCMI \o/
+</div>
+
+After pleasing the eye with such a result, it was time to get back to the
+VCMI-Python integration with pybind11.
+
+##### Connecting the pieces
+
+I refrained from the quick-and-dirty approach even for PoC purposes as it meant
+polluting with pybind11 code and dependencies all over the place. A separate
+component had to be designed for the purpose.
+
+Typically, connecting two components with incompatible interfaces involves
+an adapter (I call it _connector_) which provides a clean API to each of the
+components:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-3 mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-povgym-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm-4 mt-4">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-povconnector-components.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm-3 mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-povvcmi-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+When applying the
+[adapter pattern](https://refactoring.guru/design-patterns/adapter)
+one must flip their perspective from the local viewpoint of an object in a
+relationship, to the shared viewpoint of the relationship itself (i.e. both
+sides of our connector). That's when one issue becomes apparent: both
+components are controlled by _different_ entities - i.e. the VCMI client
+receives input from the VCMI Server, while the gym env receives input from the
+RL algorithm.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-povconnector-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    A view on the vcmi-gym relationships through the connector
+</div>
+
+Since both controlling entities (RL script and VCMI server) are otherwise
+unrelated, the _connector_ is responsible for ensuring that they operate in a
+mutually synchronous manner. The solution involves usage of synchronization
+primitives to block the execution of one thread while the other is unblocked:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-3 mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-connector-init-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm-3 mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-connector-step-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm-3 mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-connector-reset-endbattle-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm-3 mt-3 mt-md-0">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-connector-reset-midbattle-sequence.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    Connector implementation details (SVG versions
+    <a href="{{ 'assets/img/vcmi-gym/diagram-connector-init-sequence.svg' | relative_url }}" target="_blank">here</a>,
+    <a href="{{ 'assets/img/vcmi-gym/diagram-connector-step-sequence.svg' | relative_url }}" target="_blank">here</a>
+    <a href="{{ 'assets/img/vcmi-gym/diagram-connector-reset-endbattle-sequence.svg' | relative_url }}" target="_blank">here</a>
+    and
+    <a href="{{ 'assets/img/vcmi-gym/diagram-connector-reset-midbattle-sequence.svg' | relative_url }}" target="_blank">here</a>)
+</div>
+
+Some notes regarding the diagrams above:
+* The gray background denotes a group of actors operating within the same
+  thread (where `T1`, `T2`, ... are the threads). The same actor can operate
+  in multiple threads.
+* The meaning behind the color-coded labels is as follows:
+    * <span style="background-color: yellow; color: black">acquire lock</span>:
+      a successful attempt to acquire the shared lock. The can be released
+      explicitly via
+      <span style="background-color: black; color: yellow">release lock</span>
+      or implicitly at the end of the current call block.
+    * <span style="background-color: yellow; color: red">acquire lock</span>:
+      an unsuccessful attempt to acquire the shared lock, effectively blocking
+      the current thread execution until the lock is released.
+    * <span style="background-color: red; color: black">cond.wait</span>: the
+      current thread execution is blocked until another thread notifies it via
+      <span style="color: blue">cond.notify</span> (`cond` is a
+      [conditional variable](https://en.cppreference.com/w/cpp/thread/condition_variable)).
+    * <span style="color: gray">P_Result</span> and <span style="color: gray">Action</span>:
+      shared variables modified by reference (affecting both threads)
+* The red bars indicate that the thread execution is blocked.
+* `AAI` and `BAI` are the names of my C++ classes which implement VCMI's
+  `CAdventureAI` and `CBattleGameInterface` interfaces. Each VCMI AI (even the
+  default scripted one) defines such classes.
+* `baggage` is a special struct which contains a reference to the `GetAction`
+  function. I introduced the Baggage idiom in VCMI to enable
+  [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) -
+  specifically, the Baggage struct is seen as a simple `std::any` object by
+  upstream code, all the way up until `AAI` where it's converted back to a
+  Baggage struct and the function references stored within are extracted. A lot
+  of it feels like _black magic_ and implementing it was a real challenge
+  (function pointers in C++ are really weird).
+* at the end of a battle, a special flag is returned with the result
+which indicates that the next action must be `reset`
+* in the middle of a battle, a `reset` is still a valid action which is
+effectively translated to _retreat_ + an a "yes" answer to the "Restart battle"
+dialog
+
+With that, the important parts of the VCMI-gym integration were now in place.
+There were many other changes which I won't discuss here, such as
+dynamic TCP port allocation, logging improvements, fixes for race conditions
+when starting multiple VCMIs, building and loading it as a single shared
+dynamic library, etc. My hands already itched to work on the actual RL part
+which was just over the corner.
+
+#### The RL cycle
+
+This is the part where I describe the basic concepts behind Reinforcement
+Learning. There's plenty of information for that in the web, so I will just
+go with the bare minimum, all of which nicely fits into this notorious diagram:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/rl-diagram.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+Preparing the environment was just one of the prerequisites for Reinforcement
+Learning. Next up is to see how to present its state to the agent.
+
+##### 👁️ Observations
+
+Figuring out which parts of the environment should be "visible" to the agent
+(i.e. the observation space) is a balance between providing enough, yet not too
+much information.
+
+I prefer the [Empathic design](https://en.wikipedia.org/wiki/Empathic_design)
+approch when dealing with such a problem, trying to imagine myself playing the
+game (and, if possible, actually play it) with very limited information
+about its current state, taking notes of what's missing and how important is
+it. For example, playing a game of Chess without seeing the pieces that have
+been taken out, or without seeing the enemy's remaining time is OK, but things
+get rough if I can't distinguish the different types of pieces, for example.
+
+Since the agent's observation space is just a bunch of numbers organized in
+vectors, it would be nearly impossible for me to interpret it directly --
+rather, I apply certain post-processing to the observation and transform it
+into something that my brain can use (yes, that is a sloppy way to describe
+"user interface"). The important part is this: all information I get to see is
+simply a projection of the information the agent gets to see.
+
+The observation space went through several design iterations, but I will only
+focus on the latest one.
+
+The mandatory component of the observation, the "chess board" equivalent here
+is the battlefield's terrain layout. I started out by enumerating all relevant
+battle hexes that would represent the first dimension of my observation
+vector. The enumeration looks similar to the one used by VCMI's code, but is
+different.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/hexes.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+Each hex can be in exactly one of four states w.r.t. the currently active unit:
+
+1. terrain obstacle
+1. occupied by a unit
+1. free (unreachable)
+1. free (reachable)
+
+This state is represented by a single number. In addition, there are 15 more
+numbers which represent the occupying creature's attirbutes, similar to what
+the player would see when right-clicking on the creature: owner, quantity,
+creature type, attack, defence, etc.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/h3-lizardmen.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+No information about the terrain's type (grass, snow, etc.) as well as the
+creature's morale, luck, abilities and status effects is provided to the agent.
+A cardinal sin of RL environment design is to ignore the
+[Markov property](https://en.wikipedia.org/wiki/Markov_property), whereby
+RL algorithms would struggle to optimize the policies, so it was important to
+not simply hide those attributes, but take them out of the equation:
+
+* terrain is always "cursed ground" (negates morale and luck)
+* heroes have no spell books as well as no spellcasting units in their army
+* heroes have no passive skills or artifacts affecting the units' stats
+
+The observation would be expanded and the restrictions - removed as soon as the
+agent learns to play well enough.
+
+##### 🕹️ Actions
+
+Designing the action space is definitely simpler as the agent should be able to
+perform any action as long as it's possible under certain conditions. The only
+meaningful restrictions here are those that prevent quitting, retreating and
+(as discussed earlier) spell casting.
+
+The total number of possible actions then becomes **1652**, which is a sum of:
+* 1 "Defend" action
+* 1 "Wait" action
+* 165 "Move" actions (1 per hex)
+* 165 "Ranged attack" actions (1 per hex)
+* 165\*8=1320 "Melee attack" actions (8 per hex - see image below)
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        {% include figure.liquid path="assets/img/vcmi-gym/h3-attack-hexes.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    The 8 different melee attack actions (7 and 8 are available to 2-hex attackers only)
+</div>
+
+The fact is: most of those actions are only _conditionally available_ at the
+current timestep. For example, the 1652 actions are reduced to around 600 if
+the active unit has a speed of `5`, as it simply can't reach most of the hexes.
+If there are also no enemy units it can target, that number is further
+reduced to ~200 as the "melee attack" actions become unavailable. If it's a
+melee unit, the "ranged attack" actions also become unavailable, reducing the
+possible actions to around 50 -- _orders of magnitute_ lower.
+
+Having such a small fraction of valid actions could hinder the initial stage
+of the learning process, as the agent will be unlikely to select those actions.
+Introducing action masking can help with this problem -- more on that later.
+
+##### 🍩 Rewards
+
+Arguably the hardest part is deciding when and how much to reward (or punish)
+agents for their actions. Sparse rewards, i.e. rewards only at the end of the
+episode, or battle, may lead to (much) slower learning, while too specific rewards
+(at every step, based on the particular action taken) may induce too much bias,
+ultimately preventing the agent from developing strategies which the reward
+designer did not account for.
+
+The reward can be expressed as:
+
+$$
+R = \sum_{i=1}^nS_i(5D_{i} - V_i\Delta{Q_i})
+$$
+
+where:
+* **R** is the reward
+* **n** is the number of stacks on the battlefield
+* **S<sub>i</sub>** is `1` if the stack is friendly, `-1` otherwise
+* **D<sub>i</sub>** is the damage dealt by the stack
+* **V<sub>i</sub>** is the stack's [AI Value](https://heroes.thelazy.net/index.php/List_of_creatures)
+* **ΔQ<sub>i</sub>** is the change in the stack's quantity (number of creatures)
+
+The following pseudo-code is an alternative (and simpler for me) representation
+of the above equation:
+
+```
+R = 0
+for stack in all_stacks:
+    points = 5 * stack.dmg_dealt - (stack.ai_value * stack.qty_diff)
+    sign = stack.is_friendly ? 1 : -1
+    R += sign * points
+```
+
+The bottom line is that the rewards are zero-sum, i.e. for each reward point
+given to either side, a corresponding punishment point is given to the other
+side.
+
+##### 💀 <a id="termination"></a> Termination
+
+#### Training
+
+// PPO -> MPPO
+// FC -> CNN
+// autoencoder fail, etc. (see sheet experiments)
