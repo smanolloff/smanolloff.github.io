@@ -39,7 +39,7 @@
         "Reduced downtime by incorporating extensive observability into new and existing applications by leveraging OpenTelemetry, Prometheus, Grafana and Honeycomb",
         "Designed and implemented architectural improvements, emphasizing modularity, scalability, performance, reliability, automated testing and event-driven operation",
         "Extensively used Kubernetes and GitHub actions for CI/CD",
-        "Contributed to the Elixir open-source community by implementing",
+        "Contributed to the Elixir open-source community by implementing OpenTracing clients and AWS signers",
         "OpenTracing clients and AWS signers."
       ]
     },
