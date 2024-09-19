@@ -321,5 +321,5 @@ world.
 Although part of the objective (to outperform the world champion) was not met,
 I felt confident that it was just a matter of time until that happened given
 more time and effort were to be invested. The journey was very educational and
-armed me with the confidence, experience and knowledge which I was eager to 
+armed me with confidence, experience and knowledge which I was eager to 
 immediately put to work in new, more sophisticated RL projects instead.
