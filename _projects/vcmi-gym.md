@@ -102,8 +102,8 @@ third-party RL environment
 
 ##### Phase 3: Adventure-only AI
 
-Worthy of a separate project on its own, training an Adventure AI out of scope
-for now. A detailed action plan is not yet required.
+Worthy of a separate project on its own, training an Adventure AI is out of
+scope for now. A detailed action plan is not yet required.
 
 ## Dev log
 
