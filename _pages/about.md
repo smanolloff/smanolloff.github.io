@@ -2,7 +2,7 @@
 layout: about
 title: About
 permalink: /
-subtitle: Software developer • Engineer • AI enthusiast
+subtitle: Software developer • ML engineer
 
 profile:
   align: right
@@ -27,7 +27,8 @@ enough and I eventually decided to quit my job and dedicate 100% of my time on
 the subject, which is all I've been busying myself with since.
 
 My fascination with AI extends beyond mere interest; it's a driving force that
-has led me to invest significant time and effort in personal ML projects.
+has led me to invest significant time and effort in personal ML projects and
+start looking for ways to grow professionally.
 
 Combining two areas of interest - gaming and AI - is a great way to leverage my
 programming skills and invest my time into something that really lights a
@@ -49,8 +50,8 @@ profesionally in the field. This time, _I'm game_.
 My plan for the future is to find a team of like-minded AI professionals which
 I can learn from, share ideas with and where I can grow as an expert in the
 field. In 10 years, I imagine myself capable of creating all sorts of
-AI-powered systems with superhuman capabilities. Just like now, with those
-games and my AI agents becoming really good at playing them, better than myself,
-But beyond the games - something that truly helps humanity.
+AI-powered systems with superhuman capabilities. Similar to my personal
+projects where my AI agents become really good at playing the game, but 
+beyond the games - something that truly matters for humanity.
 
 Get in touch with me via the social media links below 🍻
