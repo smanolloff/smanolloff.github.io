@@ -2,96 +2,140 @@
   type: map
   contents:
     - name: Full Name
-      value: Albert Einstein
+      value: Simeon Manolov
     - name: Date of Birth
-      value: 14th March 1879
+      value: 1989
     - name: Languages
-      value: English, German
-
-- title: Education
-  type: time_table
-  contents:
-    - title: PhD
-      institution: University of Zurich, Zurich, Switzerland
-      year: 1905
-      description:
-        - Description 1.
-        - Description 2.
-        - title: Description 3.
-          contents:
-            - Sub-description 1.
-            - Sub-description 2.
-    - title: Federal teaching diploma
-      institution: Eidgenössische Technische Hochschule, Zurich, Switzerland
-      year: 1900
-      description:
-        - Description 1.
-        - Description 2.
+      value: English, Bulgarian, German (B2)
 
 - title: Experience
   type: time_table
   contents:
-    - title: Professor of Theoretical Physics
-      institution: Institute for Advanced Study, Princeton University
-      year: 1933 - 1955
+    - title: Personal development
+      institution:
+      year: Sep 2023
       description:
-        - Description 1.
-        - Description 2.
-        - title: Description 3.
-          contents:
-            - Sub-description 1.
-            - Sub-description 2.
-    - title: Visiting Professor
-      institution: California Institute of Technology, Pasadena, California, US
-      year: 1933
+        - Taking time off work to upskill myself on ML through research and hands-on personal projects
+    - title: Senior Software Developer
+      institution: SumUp, Sofia
+      year: Dec 2020 - Aug 2023
       description:
-        - Description 1.
-        - Description 2.
+        - Re-designed existing Ruby services, building them from scratch using Elixir and Go; significantly reducing operational costs, improving performance and separating concerns.
+        - Reduced downtime by incorporating extensive observability into new and existing applications by leveraging OpenTelemetry, Prometheus, Grafana and Honeycomb
+        - Designed and implemented architectural improvements, emphasizing modularity, scalability, performance, reliability, automated testing and event-driven operation
+        - Extensively used Kubernetes and GitHub actions for CI/CD
+        - Contributed to the Elixir open-source community by implementing
+        - OpenTracing clients and AWS signers.
 
-    - title: Director
-      institution: Kaiser Wilhelm Institute for Physics, Berlin, Germany.
-      year: 1917-1933
+    - title: Software Developer
+      institution: SumUp, Sofia
+      year: Oct 2015 - Dec 2020
+        - Developed RESTful backend micro-services in close collaboration with web, mobile and other backend developers to replace the existing monoliths, separating concerns into single-responsibility applications by using Ruby, Node.js, Python, PostgreSQL, Redis, RabbitMQ, Elasticsearch, AWS S3, AWS EC2 and Jenkins CI/CD
+        - Gained experience in the authentication, anti-fraud, ecom, fee, mobile edge, transaction processing, receipts, and reporting domains
+        - Contributed to the Ruby open-source community
+        - Conducted training for interns
 
-    - title: Professor of Theoretical Physics
-      institution: Karl-Ferdinand University, Prague, Czechoslovakia
-      year: 1911 - 1917
+    - title: Junior Software Developer
+      institution: SumUp, Sofia
+      year: Jun 2014 - Oct 2015
       description:
+        - Worked on a JSON-RPC backend for mobile apps (Ruby, PostgreSQL)
+        - Proposed and implemented a coding style guide for improving codebase readability, consistency and maintainability
 
-    - title: Associate Professor of Theoretical Physics
-      institution: University of Zurich, Zurich, Switzerland
-      year: 1909 - 1911
+    - title: Software Engineer
+      institution: Circles Bulgaria, Sofia
+      year: Aug 2013 - Jun 2014
+      description:
+        - Designed and developed a back-office application (Ruby on Rails)
+        - Developed custom discovery scripts for HP UCMDB (Python)
+
+    - title: Technical Support Engineer
+      institution: Circles Bulgaria, Sofia
+      year: Aug 2012 - Aug 2013
+
+    - title: Technical Support Engineer
+      institution: ADRA Bulgaria, Sofia
+      year: Aug 2011 - Aug 2012
+
+    - title: Telecommunications Engineer
+      institution: Telepoint, Sofia
+      year: Dec 2010 - Feb 2011
+
+- title: Education
+  type: time_table
+  contents:
+    - title: Master of Computer Technologies and Applied Programming
+      institution: Technical University, Sofia
+      year: 2014
+    - title: Bachelor of Telecommunications Engineering
+      institution: Technical University, Sofia
+      year: 2012
+    - title: Cisco Certified Network Associate
+      institution: Cisco Academy, Sofia
+      year: 2010
+    - title: High School Diploma
+      institution: National High School of Mathematics and Natural Sciences, Sofia
+      year: 2008
 
 - title: Open Source Projects
   type: time_table
   contents:
-    - title: <a href="https://github.com/alshedivat/al-folio">al-folio</a>
-      year: 2015-now
-      description: A beautiful, simple, clean, and responsive Jekyll theme for academics.
+    - title: <a href="https://github.com/smanolloff/vcmi-gym">vcmi-gym</a>
+      year: 2023-present
+      description: OpenAI gym environment for VCMI (the HOMM3 open-source engine)
 
-- title: Honors and Awards
-  type: time_table
-  contents:
-    - year: 1921
-      items:
-        - Nobel Prize in Physics
-        - Matteucci Medal
-    - year: 2029
-      items:
-        - Max Planck Medal
+    - title: <a href="https://github.com/smanolloff/qwop-gym">qwop-gym</a>
+      year: 2023
+      description: OpenAI gym environment for QWOP
 
-- title: Academic Interests
+    - title: <a href="https://github.com/sumup-oss/ot">ot</a>
+      year: 2022
+      description: Opentracing support for Elixir applications
+
+    - title: <a href="https://github.com/sumup-oss/tesla-aws-signer">tesla-aws-signer</a>
+      year: 2022
+      description: An elixir library for signing AWS requests
+
+    - title: <a href="https://github.com/smanolloff/phoenix_params">phoenix_params</a>
+      year: 2020
+      description: A plug for Phoenix apps that validates and transforms HTTP request params.
+
+    - title: <a href="https://github.com/smanolloff/SublimeLinter-contrib-elixirc">phoenix_params</a>
+      year: 2018
+      description: Elixir linter for Sublime Text 3 based on SublimeLinter
+
+    - title: <a href="https://github.com/smanolloff/svg_drawer">svg_drawer</a>
+      year: 2016
+      description: A ruby gem for building table-based SVG layouts
+
+    - title: <a href="https://github.com/smanolloff/virtus-relations">virtus-relations</a>
+      year: 2015
+      description: A ruby gem that adds relations to Virtus objects
+
+- title: Skills
   type: nested_list
   contents:
-    - title: Topic 1.
+    - title: Back-end development
       items:
-        - Description 1.
-        - Description 2.
-    - title: Topic 2.
+        - Elixir
+        - Go
+        - Python
+        - Ruby
+        - C++
+        - JavaScript
+    - title: Software architecture design
+    - title: Machine Learning
       items:
-        - Description 1.
-        - Description 2.
-
-- title: Other Interests
-  type: list
-  contents:
-    - <u>Hobbies:</u> Hobby 1, Hobby 2, etc.
+        - RL algorithms with PyTorch
+        - Neural network architectures
+        - RL environment design
+        - Hyperparameter optimization
+    - title: Scrum
+    - title: Soft skills
+      items:
+        - Attention to detail
+        - Teamwork
+        - Communication
+        - Coaching
+        - Writing documentation
+    - title: Electrical engineering
