@@ -1,0 +1,105 @@
+@startuml "rl-eval-auto"
+
+!include <C4/C4_Container>
+!include <tupadr3/devicons2/cplusplus>
+!include <tupadr3/devicons2/python>
+!include <tupadr3/font-awesome/bar_chart>
+
+skinparam DefaultFontName monospaced
+<style>
+note {  MaximumWidth 500 }
+</style>
+
+' Used in place of " " where line wrapping is undesired
+!$nbsp = "<U+00A0>"
+
+HIDE_STEREOTYPE()
+' LAYOUT_LEFT_RIGHT()
+
+' Prevent confusing text color in legend by setting it to the default color
+!$LEGEND_DARK_COLOR=$ELEMENT_FONT_COLOR
+!$LEGEND_LIGHT_COLOR=$ELEMENT_FONT_COLOR
+
+UpdateElementStyle(person, $bgColor="white", $borderColor="white", $fontColor="black")
+
+AddElementTag("local", $bgColor="SteelBlue", $borderColor="SteelBlue", $legendText="local component")
+AddElementTag("ext", $bgColor="#aaa", $borderColor="#aaa", $legendText="external component")
+
+AddRelTag("async", $textColor="#1400c9", $lineColor="#1400c9", $lineThickness="1", $lineStyle="dashed", $legendText="-")
+
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+' Replace $search with $repl within $txt
+!function $replace($txt, $search, $repl)
+  !$replaced = ""
+  !while %strpos($txt, $search) >= 0
+    !$position = %strpos($txt, $search)
+    !$replaced = $replaced + %substr($txt, 0, $position) + $repl
+    !$txt = %substr($txt, $position + %strlen($search))
+  !endwhile
+  !return $replaced + $txt
+!endfunction
+
+' Allows to define a string in multiple lines, replacing "\n"
+' with actual newlines (note: all literal newlines must be escaped)
+!function $str($txt)
+  !return $replace($txt, "\n", %newline())
+!endfunction
+
+!function $oneline($txt)
+  !return $replace($txt, " ", $nbsp)
+!endfunction
+
+!function $loc($dir)
+  !return "<color:yellow>" + $dir + "</color>"
+!endfunction
+
+!function $desc($txt)
+  !return "<i><font:Arial><size:10>" + $txt + "</size></font></i>"
+!endfunction
+
+!function $desc2($txt, $dir)
+  !return $desc($txt) + "\n\n" + $loc($dir)
+!endfunction
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''' MAIN
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Boundary(evaluators, "") {
+  Container(Evaluator1, "Model\nEvaluator", $sprite="python", $tags="local")
+  Container(Evaluator2, "Model\nEvaluator", $sprite="python", $tags="local")
+  Container(EvaluatorN, "Model\nEvaluator", $sprite="python", $tags="local")
+}
+
+Person(User, "User")
+Container(wandb, "Weights & Biases", "HTTP API", $sprite="bar_chart")
+Container(Optimizer, "Hyperparameter optimizer", "", $sprite="python", $tags="local")
+Boundary(algos, "") {
+  Container(RL1, "RL Algorithm", "", $sprite="python", $tags="local")
+  Container(RL2, "RL Algorithm", "", $sprite="python", $tags="local")
+  Container(RLN, "RL Algorithm", "", $sprite="python", $tags="local")
+}
+
+' Rel(User, Optimizer, "Configures")
+' Rel(User, wandb, "Observes")
+Rel_L(Optimizer, wandb, "Stores models")
+Rel_U(Optimizer, RL1, "Orchestrates")
+Rel_U(Optimizer, RL2, "")
+Rel_U(Optimizer, RLN, "")
+
+Rel_U(Evaluator1, wandb, "Pulls models &\nstores metrics")
+Rel_U(Evaluator2, wandb, "")
+Rel_U(EvaluatorN, wandb, "")
+
+Rel_L(User, wandb, "Observes")
+Rel_L(User, Optimizer, "Configures")
+Rel_L(User, evaluators, "Configures")
+
+Lay_Distance(RL1, wandb, 1)
+
+@enduml
