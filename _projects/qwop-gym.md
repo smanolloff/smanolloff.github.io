@@ -315,7 +315,7 @@ I have prepared a video which showcases the results of the qwop-gym experiment:
 ### Conclusion
 
 The AI showed a remarkable performance and was able to reach the
-finish line in 5.3 seconds, meaning it was among the top 5 best players in the
+finish line in 5.3 seconds, ranking among the top 5 best players in the
 world.
 
 Although part of the objective (to outperform the world champion) was not met,
