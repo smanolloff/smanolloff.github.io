@@ -3,7 +3,7 @@ layout: page
 title: Projects
 permalink: /projects/
 description: |
-  Where I channel my passion for many sleepless nights :)
+  Passion-driven projects that have kept me up through many sleepless nights.
 nav: true
 nav_order: 3
 display_categories: 
