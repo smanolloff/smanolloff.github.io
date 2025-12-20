@@ -1869,7 +1869,7 @@ the bucket `M` for representing the given example battlefield.
 The bucket definitions were guided by size statistics collected over ~10,000
 observations:
 
-<table>
+<table class="table-sm">
     <thead>
         <tr>
             <th></th>
@@ -1952,7 +1952,7 @@ observations:
     </tbody>
 </table>
 <br>
-<table>
+<table class="table-sm">
     <thead>
         <tr>
             <th></th>
