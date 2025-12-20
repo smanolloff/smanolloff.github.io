@@ -1,0 +1,326 @@
+@startuml "arch-vcmi-fullyconv"
+left to right direction
+
+skinparam defaultTextAlignment center
+skinparam DefaultFontName Monospaced
+skinparam NoteTextAlignment left
+skinparam NoteFontName Arial
+
+<style>
+Usecase {
+  BackGroundColor #efe
+}
+
+
+</style>
+
+'''
+''' Utility functions
+'''
+
+!$nbsp = "<U+00A0>"
+
+!function $replace($txt, $search, $repl)
+  !$replaced = ""
+  !while %strpos($txt, $search) >= 0
+    !$position = %strpos($txt, $search)
+    !$replaced = $replaced + %substr($txt, 0, $position) + $repl
+    !$txt = %substr($txt, $position + %strlen($search))
+  !endwhile
+  !return $replaced + $txt
+!endfunction
+
+' Wraps each line of $txt within $open and $close
+' Example:
+'   $tagged_text("<color:red>", "two\nlines", "</color>")
+'   => "<color:red>two</color>\n<color:red>lines</color>")"
+!function $tagged_text($open, $txt, $close) return $open + $replace($txt, "\n", $close+"\n"+$open) + $close
+
+!function $node_text($name) return $tagged_text("<b>", $name, "</b>")
+!function $node_text($name, $desc) return $node_text($name)+"\n"+$tagged_text("<font:monospaced><size:10>", $desc, "</size></font>")
+!function $node_text($name, $desc, $txt) return $node_text($name, $desc)+"\n\n"+$tagged_text("<color:888><size:10>", $txt, "</size></color>")
+
+!function $hspace($length)
+  !$res = ""
+  !$i = $length
+  !while $i > 0
+    !$res = $res + $nbsp
+    !$i = $i - 1
+  !endwhile
+  !return $res
+!endfunction
+
+!function $ljust($width, $txt)
+  !return $txt + $hspace($width - %strlen($txt))
+!endfunction
+
+!function $rjust($width, $txt)
+  !return $hspace($width - %strlen($txt)) + $txt
+!endfunction
+
+' Allows to define a string in multiple lines, replacing "\n"
+' with actual newlines (note: all literal newlines must be escaped)
+!function $str($txt)
+  !return $replace($txt, "\n", %newline())
+!endfunction
+
+!function $line($txt)
+  !return $replace($txt + "\n", " ", $nbsp)
+!endfunction
+
+!function $endl($txt)
+  !return $replace($txt, " ", $nbsp)
+!endfunction
+
+
+'''
+''' Node types
+'''
+
+' Data
+!procedure $Data($id, $name)
+  Usecase $id as "$node_text($name)"
+!endprocedure
+
+!procedure $Data($id, $name, $desc)
+  Usecase $id as "$node_text($name, $desc)"
+!endprocedure
+
+!procedure $Data($id, $name, $desc, $txt)
+  Usecase $id as "$node_text($name, $desc, $txt)"
+!endprocedure
+
+' FC (FC)
+!procedure $FC($id, $name, $desc)
+  Hexagon $id as "$node_text($name, $desc)"
+!endprocedure
+!procedure $FC($id, $name, $desc, $txt)
+  Hexagon $id as "$node_text($name, $desc, $txt)"
+!endprocedure
+
+' Transformer
+!procedure $Transformer($id, $name, $desc)
+  Queue $id as "$node_text($name, $desc)"
+!endprocedure
+!procedure $Transformer($id, $name, $desc, $txt)
+  Queue $id as "$node_text($name, $desc, $txt)"
+!endprocedure
+
+' Conv
+!procedure $Conv($id, $name, $desc)
+  Node $id as "$node_text($name, $desc)"
+!endprocedure
+!procedure $Conv($id, $name, $desc, $txt)
+  Node $id as "$node_text($name, $desc, $txt)"
+!endprocedure
+
+' GNN
+!procedure $GNN($id, $name, $desc)
+  Cloud $id as "$node_text($name, $desc)"
+!endprocedure
+!procedure $GNN($id, $name, $desc, $txt)
+  Cloud $id as "$node_text($name, $desc, $txt)"
+!endprocedure
+
+' Output
+!procedure $Output($id, $name)
+  Component $id as "$node_text($name)" #orange
+!endprocedure
+
+!procedure $Output($id, $name, $desc)
+  Component $id as "$node_text($name, $desc)" #orange
+!endprocedure
+
+' Condition
+!procedure $Condition($id, $name)
+  Boundary $id as "$node_text($name)"
+!endprocedure
+
+!procedure $Condition($id, $name, $desc)
+  Boundary $id as "$node_text($name, $desc)"
+!endprocedure
+
+' LSTM
+!procedure $LSTM($id, $name)
+  Collections $id as "$node_text($name)"
+!endprocedure
+
+!procedure $LSTM($id, $name, $desc)
+  Collections $id as "$node_text($name, $desc)"
+!endprocedure
+
+' Reshape
+!procedure $Reshape($id)
+  Control $id as " "
+!endprocedure
+
+' Activation
+!procedure $Activation($id, $name)
+  Action $id as "$name"
+!endprocedure
+
+' Sum / Mean / etc.
+!procedure $Op($id, $name)
+  Agent $id as "$name"
+!endprocedure
+!procedure $Op($id, $name, $txt)
+  ' Agent $id as "$node_text($name, "", $txt)"
+  Agent $id as "$name\n$tagged_text("<color:888><size:10>", $txt, "</size></color>")"
+!endprocedure
+
+' Link
+!procedure $Link($a, $b, $dim)
+  $a --> $b : " $dim "
+!endprocedure
+!procedure $Link($a, $b, $dim, $txt)
+  ' The newline causes a bug where the 1st line appears
+  ' on the top-left side
+  ' ...but it looks better that way
+  $a --> $b : " $dim "\n$txt
+!endprocedure
+
+' Link
+!procedure $LinkAct($a, $b, $dim)
+  $a -0-> $b : " $dim "
+!endprocedure
+!procedure $LinkAct($a, $b, $dim, $txt)
+  ' The newline causes a bug where the 1st line appears
+  ' on the top-left side
+  ' ...but it looks better that way
+  $a -0-> $b : " $dim "\n$txt
+!endprocedure
+
+' Image
+!procedure $Image($id, $scale, $url)
+  Label $id as "<img:"$url"{scale=$scale}>"
+!endprocedure
+
+' title "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
+' left to right direction
+
+$Image(obs, 0.25, "https://cdn.mobygames.com/promos/1572853-heroes-of-might-and-magic-iii-complete-collectors-edition-screen.jpg")
+
+$Data(obs_global, "Global data", "", "Features: 10")
+$Data(obs_players, "Player data", "2 players", "# Features/player: 23")
+$Data(obs_hexes, "Hex data" \
+  , $line("Heterogenous graph") + \
+    $line("1 node type") + \
+    $line("7 edge types") \
+  , $line($ljust(20, "# Nodes: 165")) + \
+    $line($ljust(20, "# Edges: [dynamic]")) + \
+    $line($ljust(20, "# Features/node: 31")) + \
+    $endl($ljust(20, "# Features/edge: 1")) \
+)
+obs --> obs_global : ""
+obs ---> obs_players : ""
+obs --> obs_hexes : ""
+
+$Op(players_flatten, "Flatten")
+obs_players --> players_flatten : "(2,23)"
+
+$Op(other_concat, "Concat")
+obs_global --> other_concat : "(10)"
+players_flatten --> other_concat : "(46)"
+
+$FC(fc_other, "FC", "56 → 128")
+other_concat --> fc_other : "(56)"
+
+$Conv(gnn_hexes, "GENConv GNN", "" \
+  , $line($ljust(25, "# Layers: 3")) + \
+    $line($ljust(25, "# Hidden Channels: 256")) + \
+    $endl($ljust(25, "# Output Channels: 128")) \
+)
+
+obs_hexes --> gnn_hexes : "[graph]"
+
+$Op(hexes_mean, "Mean", "dim=0")
+gnn_hexes --> hexes_mean : "(165, 128)"
+
+$Op(sum_global, "Sum")
+hexes_mean --> sum_global : "(128)"
+fc_other --> sum_global : "(128)"
+
+$FC(act0_head, "FC", "56 → 4")
+sum_global --> act0_head : "(128)"
+
+$Op(act0_sample, "Sample", "Masked Categorical")
+act0_head --> act0_sample : "(4)"
+
+$Output(act0_out, "Main action")
+act0_sample --> act0_out : "(1)"
+
+$Op(emb_act0, "Embedding", "n=4 d=128")
+act0_out --> emb_act0 : ""
+
+$Op(q_hex1_concat, "Concat", "dim=0")
+sum_global --> q_hex1_concat : "(128)"
+emb_act0 --> q_hex1_concat : "(128)"
+
+$FC(wq_hex1_fc, "FC", "256 → 128", "Query vector\nfor Hex #1")
+q_hex1_concat --> wq_hex1_fc : "(256)"
+
+$FC(wk_hex1_fc, "FC", "128 → 128", "Key vector\nfor Hex #1")
+gnn_hexes --> wk_hex1_fc : "(165, 128)"
+
+$Op(hex1_matmul, "SDPA", "Attention scoring")
+wq_hex1_fc --> hex1_matmul : "(128)"
+wk_hex1_fc --> hex1_matmul : "(165, 128)"
+
+$Op(hex1_sample, "Sample", "Masked Categorical")
+hex1_matmul --> hex1_sample : "(165)"
+
+$Output(hex1_out, "Hex #1")
+hex1_sample --> hex1_out : "(1)"
+
+$Op(hex1_index_select, "Index select")
+hex1_out -> hex1_index_select : ""
+gnn_hexes --> hex1_index_select : "(165, 128)"
+
+$Op(q_hex2_concat, "Concat", "dim=0")
+sum_global --> q_hex2_concat : "(128)"
+hex1_index_select --> q_hex2_concat : "(128)"
+
+$FC(wk_hex2_fc, "FC", "128 → 128", "Key vector\nfor Hex #2")
+gnn_hexes --> wk_hex2_fc : "(165, 128)"
+
+$FC(wq_hex2_fc, "FC", "256 → 128", "Query vector\nfor Hex #2")
+q_hex2_concat --> wq_hex2_fc : "(256)"
+
+$Op(hex2_matmul, "SDPA", "Attention scoring")
+wq_hex2_fc --> hex2_matmul : "(128)"
+wk_hex2_fc --> hex2_matmul : "(165, 128)"
+
+$Op(hex2_sample, "Sample", "Masked Categorical")
+hex2_matmul --> hex2_sample : "(165)"
+
+$Output(hex2_out, "Hex #2")
+hex2_sample --> hex2_out : "(1)"
+
+' sum_global
+
+' $FC(fc2_stacks, "FC", "2640 → 256")
+' $FC(fc2_hexes, "FC", "640 → 256")
+' $Link(flatten_hexes, fc2_hexes, "(256)")
+' $Link(flatten_stacks, fc2_stacks, "(256)")
+
+' $Op(concat, "Concat")
+
+' $Link(fc_misc, concat, "(4)")
+' fc2_stacks -> concat : (256)
+' concat <- fc2_hexes : (256)
+
+' $LSTM(lstm, "LSTM", "hidden_size=256\nlayers=3\nseq_len=7")
+' $Link(concat, lstm, "(516)")
+' $FC(action_mlp, "FC", "256 → 2312")
+' $Link(lstm, action_mlp, "(256)")
+' $FC(value_mlp, "FC", "256 → 1")
+' $Link(lstm, value_mlp, "(256)")
+
+' $Output(action, "Action")
+' $Link(action_mlp, action, "(2312)")
+
+' $Output(value, "Value")
+' $Link(value_mlp, value, "(1)")
+
+@enduml
+
