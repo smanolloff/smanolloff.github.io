@@ -1873,7 +1873,7 @@ observations:
     <thead>
         <tr>
             <th></th>
-            <th colspan=7 class="text-center">Number of edges <code>E</code> (total)</th>
+            <th colspan=6 class="text-center">Number of edges <code>E</code> (total)</th>
         </tr>
         <tr>
             <th>Edge type</th>
@@ -1956,7 +1956,7 @@ observations:
     <thead>
         <tr>
             <th></th>
-            <th colspan=7 class="text-center">Max number of inbound edges <code>K</code> (per hex)</th>
+            <th colspan=6 class="text-center">Max number of inbound edges <code>K</code> (per hex)</th>
         </tr>
         <tr>
             <th>Edge type</th>
