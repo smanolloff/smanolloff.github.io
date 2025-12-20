@@ -1873,7 +1873,7 @@ observations:
     <thead>
         <tr>
             <th></th>
-            <th colspan=6 class="text-center">Number of edges <code>E</code> (total)</th>
+            <th colspan=6 class="text-center">Number of edges <code>E</code> (total on battlefield)</th>
         </tr>
         <tr>
             <th>Edge type</th>
