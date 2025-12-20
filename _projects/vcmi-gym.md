@@ -1180,9 +1180,9 @@ harm than good, so those were removed as well.
 
 ## Fast forward to 2025
 
-For nearly a year now I have been keeping radio silence. In short, I started a
-new job at GATE (Big Data for Smart Society Institute) and, most importantly,
-my son Stefan was born!
+It's been a year now since I've last published any updates here. In short,
+I started a new job at GATE (Big Data for Smart Society Institute) and, most
+importantly, my son Stefan was born!
 
 <div class="row justify-content-md-center">
     <div class="col-sm-8">
@@ -2259,7 +2259,7 @@ first-generation model for ML-powered AI in VCMI.
 
 ### The merge
 
-In December 2025 (more than a year after the
+In late 2025 (more than a year after the
 [MMAI PR](https://github.com/vcmi/vcmi/pull/4788) was initially opened), I posted
 an update with my new MMAI v13 models. This sparked new discussions,
 suggestions, code reviews and improvements. The PR was merged into VCMI's
@@ -2271,15 +2271,15 @@ been collecting gameplay feedback from early testers in the VCMI community,
 and I expect much more to follow. Sadly, the feedback has been mostly negative
 so far :( Players seem to have rather high expectations, reporting the
 model's bad decisions (such as the ones I outlined above) as issues to be
-fixed.
+fixed. Easier said than done, but they're being honest and that's what matters.
 
 My working theory is that the LLM boom in recent years has raised the AI bar
 to an extent where people take human-like AI behaviour as a baseline.
 LLMs and RL agents are fundamentally different and while transformers brought a
 revolution for all language models, we are yet to see a similar breaktrhough
 in reinforcement learning. Until then, comparing RL agents to LLMs is not a
-fair matchup. That being said, I value the criticism, as it will be useful
+fair matchup. That being said, I know the criticism will still be useful
 for the upcoming generations of new MMAI models, and I already have a few ideas
-in mind for the next version of MMAI. Stay tuned :)
+in mind for the next versions. Stay tuned :)
 
 ---
