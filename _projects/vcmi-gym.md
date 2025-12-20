@@ -1852,9 +1852,21 @@ limitations imposed by the limited available opset:
 In addition, the fixed-size limitation meant that dynamic graphs were not
 an option, so support for several different fixed sizes (**buckets**) was added
 to avoid wasting compute (the appropriate bucket is chosen at runtime based on
-the graph size).
+the graph size). A fixed-size graph would always contain the same amount of
+nodes and edges and by choosing the appropriate bucket container, the amount
+of padding is kept at a minimum.
 
-Bucket definitions were guided by size statistics collected over ~10,000
+As an example, let's imagine a battlefield with only 100 edges: if the graph
+size is fixed at 500 edges, the model would expect 500 edges in its input,
+meaning we need to zero-pad the "missing" ones, ending up with 400 "null" edges.
+The model then performs all tensor operations in the neural network on all 500
+edges, effectively wasting 80% of the compute on edges which don't exist. A
+bucketed approach means pre-defining several fixed sizes that the model can
+work with, then choosing the appropriate size at runtime - following this
+example, I could define buckets for S=50, M=150, L=300, XL=500 edges and choose
+the bucket `M` for representing the given example battlefield.
+
+The bucket definitions were guided by size statistics collected over ~10,000
 observations:
 
 <table>
@@ -2041,21 +2053,28 @@ observations:
 
 <br>
 
-This took a long time, but at least I gained a solid understanding of the GNN
-implementation internals while working on the solution.
+Based on this information, I defined 6 graph _buckets_ (starting from the
+rightmost column, going left): `S`, `M`, `L`, `XL`, `XXL` and `MAX` (the "avg"
+column is for informational purposes and does not correspond to a bucket).
 
-Executorch did work but performance was not good enough -- below are the
-measured time for a single action prediction on a small battlefield (bucket "S"):
-
-700ms is not acceptable in real gameplay: imagine a single-player game with 6
-computer players, each of which fights one or more battles during their turn
-(each battle has involves at least 10 predictions) - that's 30+ seconds, and if
-you've ever played HOMM3, you know that computer turns should be much faster
-than that (usually less than 10 seconds in total).
+But even with the bucketed approach, the XNNPACK model was still slow to
+respond: 700ms (for bucket `M`) is not acceptable during gameplay. Imagine a
+single-player game with 6 computer players, each of which fights one or more
+battles during their turn(each battle involves at least 10 predictions) -
+that's 30+ seconds, and if you've ever played HOMM3, you know that computer
+turns should be much faster than that (usually less than 5-10 seconds in
+total).
 
 Additionally, I ran into platform/toolchain issues and memory violation errors
-on Windows. I spend considerable amount of time trying to fix it, but eventually
-gave up. I needed a different deployment strategy.
+on Windows. I spend considerable amount of time fixing that, but given that
+Executorch's support for Linux, Windows and MacOS still only an
+[experimental](https://github.com/pytorch/executorch/tree/v1.0.0) feature,
+eventually decided to give it up. I needed a different deployment strategy.
+
+In the end, even though I had put considerable amount of time into the XNNPACK
+export, it was still worth it as I gained a solid understanding of the GNN
+implementation internals. The bucketed approach for lowering the graph
+dimensionality was backend-agnostic and would also come in handy later.
 
 #### ExecuTorch: Vulkan and CoreML
 
