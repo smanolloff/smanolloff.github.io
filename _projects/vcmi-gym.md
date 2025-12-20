@@ -2222,7 +2222,8 @@ with MMAI support thanks to ONNX runtime!
     </tbody>
 </table>
 
-NOTE: the inference values are results from my on 3 different devices: Mac M1 / iPhone 2020SE / Samsung Galaxy A71
+NOTE: the inference values are results from my own mini-benchmark on 3 different
+devices: Mac M1 / iPhone 2020SE / Samsung Galaxy A71
 
 #### Playtesting
 
