@@ -1877,7 +1877,6 @@ observations:
         </tr>
         <tr>
             <th>Edge type</th>
-            <th>avg</th>
             <th>max</th>
             <th>p99</th>
             <th>p90</th>
@@ -1895,11 +1894,9 @@ observations:
             <td>888</td>
             <td>888</td>
             <td>888</td>
-            <td>888</td>
         </tr>
         <tr>
             <td><code>REACH</code></td>
-            <td>355</td>
             <td>988</td>
             <td>820</td>
             <td>614</td>
@@ -1909,7 +1906,6 @@ observations:
         </tr>
         <tr>
             <td><code>RANGED_MOD</code></td>
-            <td>408</td>
             <td>2403</td>
             <td>1285</td>
             <td>646</td>
@@ -1919,7 +1915,6 @@ observations:
         </tr>
         <tr>
             <td><code>ACTS_BEFORE</code></td>
-            <td>51</td>
             <td>268</td>
             <td>203</td>
             <td>118</td>
@@ -1929,7 +1924,6 @@ observations:
         </tr>
         <tr>
             <td><code>MELEE_DMG_REL</code></td>
-            <td>43</td>
             <td>198</td>
             <td>160</td>
             <td>103</td>
@@ -1939,7 +1933,6 @@ observations:
         </tr>
         <tr>
             <td><code>RETAL_DMG_REL</code></td>
-            <td>27</td>
             <td>165</td>
             <td>113</td>
             <td>67</td>
@@ -1949,7 +1942,6 @@ observations:
         </tr>
         <tr>
             <td><code>RANGED_DMG_REL</code></td>
-            <td>12</td>
             <td>133</td>
             <td>60</td>
             <td>29</td>
@@ -1964,11 +1956,10 @@ observations:
     <thead>
         <tr>
             <th></th>
-            <th colspan=7 class="text-center">Number of inbound edges <code>K</code> (per hex)</th>
+            <th colspan=7 class="text-center">Max number of inbound edges <code>K</code> (per hex)</th>
         </tr>
         <tr>
             <th>Edge type</th>
-            <th>avg</th>
             <th>max</th>
             <th>p99</th>
             <th>p90</th>
@@ -1980,7 +1971,6 @@ observations:
     <tbody>
         <tr>
             <td><code>ADJACENT</code></td>
-            <td>5.4</td>
             <td>6</td>
             <td>6</td>
             <td>6</td>
@@ -1990,7 +1980,6 @@ observations:
         </tr>
         <tr>
             <td><code>REACH</code></td>
-            <td>2.2</td>
             <td>13</td>
             <td>10</td>
             <td>8</td>
@@ -2000,7 +1989,6 @@ observations:
         </tr>
         <tr>
             <td><code>RANGED_MOD</code></td>
-            <td>2.5</td>
             <td>15</td>
             <td>8</td>
             <td>4</td>
@@ -2010,7 +1998,6 @@ observations:
         </tr>
         <tr>
             <td><code>ACTS_BEFORE</code></td>
-            <td>0.3</td>
             <td>23</td>
             <td>19</td>
             <td>15</td>
@@ -2020,7 +2007,6 @@ observations:
         </tr>
         <tr>
             <td><code>MELEE_DMG_REL</code></td>
-            <td>0.3</td>
             <td>10</td>
             <td>9</td>
             <td>8</td>
@@ -2030,7 +2016,6 @@ observations:
         </tr>
         <tr>
             <td><code>RETAL_DMG_REL</code></td>
-            <td>0.2</td>
             <td>10</td>
             <td>9</td>
             <td>8</td>
@@ -2040,7 +2025,6 @@ observations:
         </tr>
         <tr>
             <td><code>RANGED_DMG_REL</code></td>
-            <td>0.1</td>
             <td>8</td>
             <td>6</td>
             <td>3</td>
@@ -2054,8 +2038,7 @@ observations:
 <br>
 
 Based on this information, I defined 6 graph _buckets_ (starting from the
-rightmost column, going left): `S`, `M`, `L`, `XL`, `XXL` and `MAX` (the "avg"
-column is for informational purposes and does not correspond to a bucket).
+rightmost column, going left): `S`, `M`, `L`, `XL`, `XXL` and `MAX`.
 
 But even with the bucketed approach, the XNNPACK model was still slow to
 respond: 700ms (for bucket `M`) is not acceptable during gameplay. Imagine a
