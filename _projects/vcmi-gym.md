@@ -2281,7 +2281,7 @@ to an extent where people take human-like AI behaviour as a baseline.
 LLMs and RL agents are fundamentally different and while transformers brought a
 revolution for all language models, we are yet to see a similar breaktrhough
 in reinforcement learning. Until then, comparing RL agents to LLMs is not a
-fair matchup. That being said, I know the criticism will still be useful
+fair matchup. That being said, I know the criticism will be useful
 for the upcoming generations of new MMAI models, and I already have a few ideas
 in mind for the next versions. Stay tuned :)
 
