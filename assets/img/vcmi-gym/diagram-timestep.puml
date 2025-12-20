@@ -1,0 +1,54 @@
+@startuml "pov-gym"
+title "Transitions"
+hide footbox
+
+<style>
+sequenceDiagram {
+  group {
+    LineThickness 1
+    LineColor gray
+  }
+  groupHeader {
+    LineThickness 1
+    FontColor gray
+    LineColor gray
+  }
+}
+</style>
+
+skinparam sequenceBoxBorderColor #FFF
+
+autoactivate off
+
+participant "**<back:red>Red Player**" as red
+participant "**Player**\n//<back:red>red//" as red
+participant "**Environment**\n(VCMI)" as env
+participant "**<back:blue><color:white>Blue Player**" as blue
+
+== battle start ==
+
+env -> red ++ : 👁️ Observation
+red -> env -- : 🕹️ Action
+|||
+env -> blue ++ : 👁️ Observation
+blue -> env -- : 🕹️ Action
+|||
+env -> blue ++ : 👁️ Observation
+blue -> env -- : 🕹️ Action
+|||
+env -> blue ++ : 👁️ Observation
+blue -> env -- : 🕹️ Action
+|||
+env -> red ++ : 👁️ Observation
+red -> env -- : 🕹️ Action
+|||
+env -> red ++ : 👁️ Observation
+red -> env -- : 🕹️ Action
+|||
+env -> blue ++ : 👁️ Observation
+blue -> env -- : 🕹️ Action
+|||
+
+== battle end ==
+
+@enduml

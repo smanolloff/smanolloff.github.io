@@ -3,4 +3,3 @@ $ docker create \
     --name smanolloff.github.io \
     --init -p 8888:8080 -p 35729:35729 \
     -v "$PWD":/srv/jekyll amirpourmand/al-folio:v0.11.0
-

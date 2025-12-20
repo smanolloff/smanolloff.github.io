@@ -6,6 +6,8 @@ img: assets/img/vcmi-gym/cover.png
 importance: 1
 category: AI
 related_publications: false
+# toc:
+#   sidebar: left
 ---
 
 You must have heard about
@@ -37,7 +39,7 @@ keeps creating new game content, expansion sets, gameplay mods, HD remakes and
 whatnot. That's where [VCMI](https://vcmi.eu/) comes in: a fan-made
 **open-source recreation** of HOMM3's engine ❤️ As soon as I heard about it,
 my eyes sparkled and I knew what my next project was going to be: an AI for
-HOMM3. 
+HOMM3.
 
 ### Problem Statement
 
@@ -232,7 +234,7 @@ There's a lot going on after that data is received -- let's see what.
 
 Any packet that is accepted by a client or server essentially spins a bunch of
 gears which ultimately change the global game state and, optionally, result in
-other data packets being sent in response. 
+other data packets being sent in response.
 
 Figuring out the details by navigating through the VCMI codebase is nearly
 impossible with the naked eye -- there are ~300K lines of code in there. That's
@@ -297,7 +299,7 @@ VCMI's user-oriented design makes it unsuitable for training AI models
 efficiently. On-policy RL algorithms like PPO are designed to operate in
 environments where state observations can collected at high speeds and training
 a battle AI is a process that will involve a _lot_ of battles being played.
-We are talking millions here. 
+We are talking millions here.
 
 ##### Quick battles
 
@@ -761,7 +763,7 @@ was too big (2000+ actions), while the average number of _allowed_ actions at
 any given timestep was less than 50. It means an untrained agent has only 2%
 chance to make an valid action (the initial policy is basically an RNG).
 The agent was making too many invalid actions and, although it eventually
-learned to stop making them, it still performed very poorly: 
+learned to stop making them, it still performed very poorly:
 
 <div class="row justify-content-md-center">
     <div class="col-sm-11">
@@ -806,7 +808,7 @@ Making it too small or completely removing it caused another local minima:
 convergence into a policy where only invalid actions were taken, as the episode
 never finished and thus - the enemy could never inflict any damage (the enemy
 is not given a turn until the agent finishes its own turn by making a valid
-move). Maybe I should introduce a negative feedback on "Defend" actions...? 
+move). Maybe I should introduce a negative feedback on "Defend" actions...?
 That would introduce too much bias (defending is not an inherently *bad*
 action, but the agent would perceive it as such).
 
@@ -867,7 +869,7 @@ Here's how the action distribution looked like after action masking was implemen
 </div>
 
 <div class="caption">
-    Results from a training session with MPPO (PPO with action masking). 
+    Results from a training session with MPPO (PPO with action masking).
     W&B link <a href="https://wandb.ai/s-manolloff/vcmi/groups/M8-PBT-MPPO-20231206_113004/workspace?nw=nwusersmanolloff">here</a>.
 </div>
 
@@ -904,7 +906,7 @@ not periodically throw away your agent's progress_. While educating myself
 on the topic, I stumbled upon the
 [Population Based Bandits](https://www.anyscale.com/blog/population-based-bandits)
 (PB2) method, which improves upon PBT by leveraging a probabilistic model for
-selecting the hyperparameter values, so I went for it instead. 
+selecting the hyperparameter values, so I went for it instead.
 
 <div class="row justify-content-md-center">
     <div class="col-sm-6">
@@ -941,7 +943,7 @@ the RL training. It _changes_. For example, in the early
 stages of training, lower values for `gamma` and `gae_lambda` (PPO params)
 result in faster learning, since the agent considers near-future rewards as more important
 than far-future rewards. It makes perfect sense if we compare it to how we
-(humans) learn: starting with the basics, gradually increasing the complexity and 
+(humans) learn: starting with the basics, gradually increasing the complexity and
 coming up with longer-term strategies as we become more familiar with our task.
 
 <div class="row justify-content-md-center">
@@ -963,7 +965,7 @@ intelligent at that point. The obvious problem was that it could only win
 battles of this (or very similar) type. A different setup (quantities, creature types,
 stack numbers, etc.) would confuse the agent - the battle would look different
 compared to everything it was trained for.
-In other words, the did not generalize well. 
+In other words, the did not generalize well.
 
 This is a typical problem in ML and can usually be resolved by ensuring the
 data used for training is rich and diverse. In the context of vcmi-gym, the
@@ -1098,7 +1100,7 @@ vs. the scripted "StupidAI" bot, while half of the evaluation is done vs.
 "BattleAI" (VCMI's strongest scripted bot).
 
 Having said all this, I still haven't described how exactly I evaluate the
-those models, so make sure to read the next section if you want to know more.
+those models, so keep reading ahead if you want to know more.
 
 ##### 🕵️ Testing (evaluation)
 
@@ -1142,7 +1144,7 @@ recurrent (LSTM) and self-attention layers were used in this project with
 varying success. In general, results for NNs which contained SelfAttention
 and/or LSTM layers were simply worse, so I eventually stopped experimenting
 with them. Similarly, batch normalization and dropout also seemed to do more
-harm than good, so those were removed as well. 
+harm than good, so those were removed as well.
 
 <div class="row">
     <div class="col-sm">
@@ -1169,17 +1171,1115 @@ harm than good, so those were removed as well.
     Some of the NN architectures used in vcmi-gym (there are way too many variations to visualize them all)
 </div>
 
-A slight modification of the NN shown in the last image above seems to perform
-well and is currently used for training. The NN architecture is, however,
-often being changed, so it's likely the diagrams above are already outdated.
-
 .
 
 .
 
 .
 
-<i>There's certainly more to this story, but I haven't had the time to write it
-    all down yet, so stay tuned.</i>
 
-**... to be continued.**
+## Fast forward to 2025
+
+For nearly a year now I have been keeping radio silence. In short, I started a
+new job at GATE (Big Data for Smart Society Institute) and, most importantly,
+my son Stefan was born!
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/stefan.jpeg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    Meet <b>Stefan</b>: my new reinforcement learning agent in real life.
+</div>
+
+Time became a scarce resource. I remained committed to the vcmi-gym/MMAI
+project and managed to sneak a couple of hours nearly every day, but I did not
+have the bandwidth to turn that work into coherent updates. In an attempt to
+catch up, I will summarize what I tried, what failed, what worked, and what
+finally made MMAI feel like a serious contribution rather than a prototype.
+
+## The first MMAI contribution
+
+In October 2024, I submitted MMAI in a
+[pull request](https://github.com/vcmi/vcmi/pull/4788) to the VCMI repo.
+
+It contained a single model. At that point I had already observed that training
+two separate policies (one for attacker and one for defender) consistently
+outperformed a single "universal" policy. Since neutral fights in VCMI always
+place neutrals on the defender side, the model I shipped was **defender-only**,
+and the initial integration allowed choosing MMAI only as the **neutral AI**.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/screenshot-vcmi-launcher-2024.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    MMAI selectable as a NeutralAI in the VCMI launcher
+</div>
+
+Key characteristics of the initial submission model:
+
+- **Architecture:** a small variation of the neural network described earlier.
+- **Performance:**
+  - ~75% win rate vs. StupidAI (VCMI's "weak" scripted bot)
+  - ~45% win rate vs. BattleAI (VCMI's "strong" scripted bot)
+
+The contribution did not exactly go as planned: there were mixed reactions and
+it became apparent that there's more to be desired if MMAI were to become a
+part of VCMI.
+
+#### Why the PR stalled
+
+The community feedback was direct, and it was fair. Some of the main issues
+were:
+
+1. **Strength:** the model was still weaker than BattleAI, so the practical
+value of merging it was questionable.
+2. **Play experience:** it was not enjoyable to play against. It behaved too
+passively -- often backing away and waiting, effectively forcing the human
+player to engage first.
+3. **Creature bank battlefields:** it struggled with the circular/irregular
+troop placement used in creature banks. In particular, it behaved poorly for
+stacks in the top-left corner because it had almost never been trained on
+those layouts. The result looked like a bug, even if the underlying cause was
+distribution shift.
+
+That seemingly took the steam out of this contribution, so instead of pushing
+for the merge, I took a step back to see what can be improved.
+
+## Back to the drawing board
+
+I iterated across several axes at once:
+
+- different NN architectures
+- different RL algorithms
+- different observation and action spaces
+- different reward functions
+
+Some of these paths ended up being expensive lessons.
+
+Iterations took days, sometimes weeks, and experiments were effectively sequential.
+I had to step-up my game: I moved from local hardware to rented GPUs on VastAI,
+and migrated long-term storage to AWS S3. That improved iteration speed dramatically.
+
+I also reworked the sampling/training pipeline: instead of many independent PBT
+workers each running their own small workload, I leaned into gymnasium vector
+environments (with a patch to make VCMI play nicely) so that inference and
+learning could run in larger batches and the GPU would stop idling. That
+enabled me to more freely carry out the experminets that followed.
+
+---
+
+### DreamerV3
+
+_Significant effort, zero learning._
+
+I spent a substatial amount of time trying to make DreamerV3 work, using:
+- a modified ray\[tune\] setup, and
+- SheepRL's implementation adapted for **masked action spaces**.
+
+Despite eventually getting the training pipeline running, the models simply did
+not learn. Not "learned slowly" - they failed to learn even basic competence
+across the hyperparameter space I tried. I never found the root cause,
+and at some point continuing to push here stopped being rational. I dropped
+DreamerV3 and decided to move on. At least I had managed to submit several Ray
+[bug fixes](https://github.com/ray-project/ray/pulls?q=is%3Apr+author%3Asmanolloff+is%3Aclosed)
+along the way.
+
+---
+
+### MCTS (AlphaZero/MuZero family)
+
+_Attractive in theory, impractical in VCMI._
+
+For turn-based, adversarial, positional games, MCTS-style approaches
+(AlphaZero, MuZero, etc.) are a natural temptation. The problem is structural:
+to do tree search, you need an environment that can **branch**:
+
+- step forward N actions,
+- roll back,
+- step forward N different actions,
+- roll back again,
+- repeat.
+
+VCMI battles are not designed to "rewind" cleanly. Rolling back the last N
+actions reliably is a non-trivial engineering project on its own. I noticed
+there's a fellow AI enthusiast on the VCMI
+[discord channel](https://discord.com/channels/298106089885401090/1147259775420207256)
+who is working on an MCTS-based AI model, hopefully he will be able to overcome
+this limitation.
+
+Instead, I decided to explore the alternative: train a model that can
+*simulate* battle progression.
+
+---
+
+### Simulation models
+
+Simulating sequences of turns in VCMI battles requires two capabilities:
+
+1. **State transitions** (what the world becomes after an action)
+2. **Opponent behavior** (what the enemy does in a given state)
+
+Those are distinct problems, so I trained two models:
+
+1. **Transition model** (codename `t10n`):
+   - input: (battlefield_state, chosen_action)
+   - output: predicted_next_state
+
+2. **Policy/prediction model** (codename `p10n`):
+   - input: battlefield_state
+   - output: predicted_action (e.g. what BattleAI would do)
+
+#### How one imagined "timestep" works
+
+Assume it is *our* turn as the model, playing as defender. We want to evaluate
+action X without executing it in VCMI.
+
+Pseudo-code:
+
+```python
+state = obs
+action = candidate_action
+
+# roll forward until the turn comes back to us
+while True:
+    next_state = t10n(state, action)
+    if next_state.side_to_act == "us":
+        break
+    action = p10n(next_state)  # predict opponent response state = next_state
+
+return next_state
+```
+
+Once a single timestep can be imagined like this, imagining a horizon-H
+trajectory is just a matter of repeating the above loop H times.
+
+#### Training the simulation models
+
+Unlike online RL, training `t10n` and `p10n` is essentially supervised learning
+on logged transitions:
+
+* `t10n` training pairs: (state, action) → next_state
+* `p10n` training pairs: state → action
+
+That decoupling is convenient because it allows offline data collection, but it
+comes at a cost: data volume.
+
+A single sample (two observations + one action) was ~100KB. At that size:
+
+* 1M samples ≈ 100GB
+* "millions" of samples quickly becomes **terabytes**
+
+Two immediate bottlenecks followed:
+
+1. **Storage cost:** not only S3, but also VM storage (VastAI charges you per GB of storage used).
+2. **Transfer time:** repeatedly downloading terabytes of data is slow and costly
+  (VastAI charges per GB downloaded, as well as a fixed charge for renting the VM)
+
+Fortunately, NumPy's built-in compressed storage reduced sample size by roughly **10×–20×**.
+That made the dataset manageable, at the price of CPU overhead for
+(de)compression—which was acceptable compared to the storage and transfer
+costs.
+
+With vectorized environments, PyTorch data loaders, and a custom packing
+format, I eventually collected millions of samples and had enough data to
+train both models.
+
+#### Loss functions
+
+_Easy for `p10n`, non-trivial for `t10n`._
+
+For `p10n`, the output is an action distribution, and the target is a one-hot
+action. Standard cross-entropy works well.
+
+For `t10n`, the state contains a mixture of feature types:
+
+1. **Continuous** (e.g. HP normalized to [0,1])
+2. **Binary** (e.g. traits/flags)
+3. **Categorical** (e.g. slot IDs, unit types, etc.)
+
+A single MSE loss is a poor fit. Instead I used a composite objective:
+
+* MSE for continuous
+* BCE for binary
+* CE for categorical
+
+Conceptually:
+
+```python
+L = mse(continuous) + bce(binary) + ce(categorical)
+```
+
+After a couple of months of training and iteration I had a `t10n` and `p10n`
+pair that looked promising.
+
+<!-- TODO: screenshots of W&B charts for t10n and p10n -->
+
+#### Handling simulation uncertainty
+
+The first time I tried to render `t10n`'s predicted output, it became obvious
+that post-processing was required.
+
+`t10n` outputs *probabilities*, not discrete game states. For binary values,
+that means outputs like `0.93` instead of `1`. This is not necessarily wrong:
+some transitions are genuinely stochastic (e.g. paralysis chance). The model
+reflects that uncertainty.
+
+To *render* a state, however, VCMI needs discrete values, i.e. you can't render
+a "70%" paralyzed creature - it must be either paralyzed or not. So, the
+predicted state has to be **collapsed** into a concrete instance:
+
+* binary flags snapped to 0/1
+* categorical logits turned into an argmax category
+* constraints enforced so that invalid combinations do not survive
+
+With this, a probabalistic state could be materialized into concrete instances.
+
+---
+
+### The "world model"
+
+_Usable, but not stable enough for serious MCTS._
+
+Combining `t10n` and `p10n` gave me a "world model" capable of imagining future
+rollouts.
+
+A _rollout_ is a sequence of _timesteps_, which in turn are sequences of _transitions_.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/diagram-timestep.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+<div class="caption">
+    Rollouts, timesteps and transitions.
+</div>
+
+The world model is capable of simulating only _transitions_, hence timesteps
+and rollouts must be generated in an autoregressive manner. This naturally
+leads to a fundamental problem: **autoregressive error accumulation**. It
+manifests as innacuracies and hallucinations, resulting in invalid states. For
+example, a unit which _may have been paralyzed_ would mean its "paralyze" flag
+(which should be either 1 or 0) is somewhere in-between, e.g. `0.4`. There is
+no such thing as a "40% paralyzed creature" in VCMI - it's either paralyzed or not.
+
+To contain this, I collapsed states after every transition and fed the collapsed
+versions forward. You can think of collapsing as rounding in the case of
+numeric is a _round_ operation.
+For categoricals, this That eliminated many reconstruction failures, but it exposed the
+model's hallucinations more clearly:
+
+* some long exchanges caused excessive drift
+* units sometimes morphed into "hybrids" (e.g. a First Aid Tent drifting toward
+  a Dendroid Guard-like unit)
+* end-of-battle uncertainty was particularly destructive (once the model
+  becomes unsure the battle ended, it becomes unsure about everything after)
+
+
+This is best illustrated by comparing the model's imagined transition sequence
+(I call it the _dream_) against the actual transitions occurring in the environment:
+
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/world-model-real.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/world-model-dream.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+<div class="caption">
+    Comparing transition sequences: VCMI's <b>actual</b> sequence (top) vs. my world-model's <b>dream</b> (bottom).
+</div>
+
+Note: Blue units `2` (Pegasus), `4` (Pegasus) and `5` (Death Knight) are
+_wide_ units and occupy two hexes, marked as `2←2`, `4←4` and `5←5`.
+
+In this test, we play as red, while VCMI's BattleAI bot plays as blue.
+
+The actual in-game transitions are as follows:
+
+1. **Initial condition:**
+    - red unit **0** is active
+    - the next action is: move to y=8 x=5.
+1. **First transition:**
+    - blue unit **2** is active
+    - the next action is: attack-move to hex y=7 x=4, striking at red unit
+      **0**.
+1. **Second transition:**
+    - blue unit **2** is active <ins>again</ins> (perhaps it has waited earlier)
+    - the next action is: attack-move to hex y=7 x=4, striking at red unit
+      **0** (again)
+1. **Third transition:**
+    - red unit **0** was killed.
+    - battle has ended.
+
+Comparing this against the world model's dream (imagined transitions):
+
+1. **Initial condition:** same as above.
+1. **First _imagined_ transition:** also same as above. The world model has
+  correctly simulated this transition by simulating a new state given
+  the previous state + action, as well as predicting the enemy's next action.
+1. **Second _imagined_ transition:** a distorted version of the actual state:
+    - a _phantom_ blue unit is active (it's not visible on the map).
+    - the predicted action is: attack-move to y=7 x=6, striking at red unit **0**.
+    This is no longer the same as the actual transition, but it's close
+    (apparently, the model becomes uncertain when the same unit has to act twice).
+1. **Third _imagined_ transition:** an even blurrier version of the actual state:
+    - the _phantom_ unit has materialized as blue unit **0←**. The arrow
+        indicates this is a wide unit (occupying 2 hexes), but its second hex
+        is marked "unreachable" (dark circle).
+    - red unit **0** was _not_ killed.
+    - the battle has _not_ ended.
+    - blue unit **4** is active.
+
+In this dream, the battle continues. The imagined states have become disconnected
+from the actual ones. Looking at the creatures' stats, we can see a numerical drift as well:
+
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/world-model-real-final.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/world-model-dream-final.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+<div class="caption">
+    Unit stats after the 3 transitions: <b>actual</b> stats (left) vs. the stats in the <b>dream</b> (right).
+</div>
+
+Comparing the actual vs imagined stats:
+- There is a noticeable drift, although some similarity remains. Looking carefully,
+  you will notice that creatures in the dream appear _more powerful_ than they
+  actually are - an interesting topic on its own.
+- The _phantom_ unit (blue unit **0**) is very similar to blue unit **2**. As
+  if unit **2** was _split in two_, preserving the overall strenth of the blue
+  army and resulting in one extra unit.
+- The _still alive_ red unit **1** has barely survived and will _not_ act for
+  another 17 turns (Queue=18). This is a signals that the model is uncertain if
+  the unit is _dead or alive_.
+
+This shows how the imagined states deeper in the dream drift further away from
+reality. Not surprising, but I find it oddly satisfying to observe.
+Unfortunately, such a model is not a viable replacement for the VCMI game
+engine for the purposes of MCTS, which requires a much more faithful
+simulator. With no mature open-source MuZero-like stack I could practically
+adapt, the expected return on further investment dropped sharply.
+
+I did try `muax` because it is referenced from DeepMind's mctx ecosystem, but
+it turned out to be a thin wrapper around assumptions that did not fit my use
+case (no batching/vectorization, no support for GPU computation, strong constraints on
+observation/action types, etc.). The timing was unfortunate — I found these
+constraints late, but the detour was still useful: I learned to write JAX by
+rewriting my models in JAX/Flax, then rewriting them again for Haiku. It was an
+instructive exercise and I would definitely keep Jax in mind for my future
+projects, but it did not unlock MCTS.
+
+At that point, I pivoted to a different imagination-based idea: I2A.
+
+---
+
+### The I2A model
+
+I2A (Imagination-Augmented Agents), introduced in a research paper from 2017,
+integrates a learned world model into an otherwise model-free policy by
+adding an "imagination core" that generates rollouts, which the policy learns
+to interpret. The key claim that caught my attention: I2A can still be useful
+even when the environment model is imperfect.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/i2a-architecture.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    I2A architecture diagram (source: <a href="https://arxiv.org/pdf/1707.06203">I2A paper</a>)
+</div>
+
+My `t10n + p10n` world model looked like a fit. Unfortunately, VCMI's action
+space makes this approach computationally brutal.
+
+With:
+
+* horizon = 5 timesteps
+* trajectories = 10
+* batch_size = 10 steps
+
+...the number of forward passes exploded exponentially (including a third reward model, omitted
+here for brevity). The overhead was so large that learning slowed to a crawl.
+Even with aggressive pruning (10 trajectories is well under 30% of the
+actions a unit can take on average), the compute budget was dominated
+by "imagination", not learning.
+
+I2A was not viable for this problem under these constraints.
+
+---
+
+### MPPO-DNA model (revised)
+
+_The action space is the enemy._
+
+At this point I returned to MPPO-DNA and focused on what repeatedly hurt almost
+every algorithm I tried:
+
+**2312 discrete actions**.
+
+I had previously attempted a multi-head policy that decomposes the action into
+several parts (inspired by "mini-AlphaStar"-style spatial/non-spatial
+factorization), but that attempt did not converge well. This time I restarted
+the implementation from scratch to avoid "fixing" myself into the same
+design.
+
+#### Hex-aware spatial processing
+
+A major architectural change was implementing a custom 2D convolution-like
+layer for a **hex grid**. Standard 2D convolutions assume a square lattice;
+VCMI battlefields are hex-based. Treating hexes as squares is possible, but it
+causes geometric distortion.
+
+
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/conv-classic-square.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/conv-classic-hex.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/conv-hexconv-square.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/conv-hexconv-hex.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+<div class="caption">
+    Classic convolutional kernels (top) cause a geometric distortion when applied
+    to hex grids.
+    <br>
+    I designed a hex-convolutional kernel (bottom) to address this issue.
+</div>
+
+#### Adding transformers
+
+Incorporating Transformer encoder layers attending over the hexes was the first
+time I saw models reach **~50% win rate vs BattleAI**. The layers added were:
+
+* self-attention (hex ↔ hex)
+* cross-attention (global state → hexes)
+
+That was a genuine milestone, but there was a catch: models became unstable.
+
+#### The slump
+
+Transformer-based models often trained well, but then abruptly collapsed.
+Lower learning rates, gradient norm clipping and reducing the number of
+transformer layers were among the first things I tried, but none worked.
+Collapsing persisted across runs. I still do not have a reasonable explanation.
+
+Still, the direction felt correct: I wanted global context propagation without
+destroying spatial structure. That led naturally to the next step.
+
+---
+
+### The GNN pivot
+
+_Everything can be represented as a graph._
+
+Graph neural networks (GNN) are specialized artificial neural networks that are
+designed for tasks whose inputs are graphs. GNNs have enjoyed great recognition
+in the recent years, with DeepMind's
+[GraphCast](https://deepmind.google/blog/graphcast-ai-model-for-faster-and-more-accurate-global-weather-forecasting/)
+(deemed "the most accurate 10-day global weather forecasting system in the world")
+and [AlphaFold](https://en.wikipedia.org/wiki/AlphaFold) (a 2024 Nobel Price
+winning protein folding predictor) being notable examples. I decided to explore
+a GNN-based approach for vcmi-gym, which meant I had to first and foremost find
+out how to represent the VCMI battlefield as a graph.
+
+Graphs are an amazing way to model information - they excel at modeling objects
+(called graph nodes), their relationships (called graph edges). Feeding this
+into a graph neural network (GNN), the processing of the information flow
+through those edges (called message passing) can be further adapted for efficient
+learning.
+
+For VCMI I defined a
+[heterogenous graph](https://pytorch-geometric.readthedocs.io/en/2.6.0/notes/heterogeneous.html)
+with a single node type (`HEX`) and seven edge types. The graph contains a fixed
+number of nodes (165) and a varying number of edges (depending on the unit
+composition, position, abilities, etc.):
+
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/edge-actsbefore.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/edge-adjacent.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/edge-reach.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/edge-rangeddmg.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/edge-meleedmg.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/edge-retaldmg.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+<div class="caption">
+    An attempt to visualise the graph topology. Nodes are represented by circles,
+    edges are represented by arrows.
+    <br>
+    For readability's sake, only the <b>outgoing</b> edges for exactly
+    <b>one</b> node are drawn (in the real graph, <i>each</i> node has
+    similar outgoing edges).
+</div>
+
+This representation matched how I reason about the battlefield when playing the
+game: not as a flat tensor, but as entities and relationships, in particular:
+- _How much damage can unit X deal to unit Y?_
+- _Can unit X reach hex Y?_
+- _Will unit X act before unit Y?_
+- etc.
+
+All this required some C++ work and a new MMAI observation version: **v12**
+(yes, by that time, I had reached the _12th_ iteration), but it worked
+well. Next up was the neural network design, which governs how this information
+is processed.
+
+Different GNNs have different message passing logic. Finding a suitable
+message passing function is not trivial, and sometimes a customised approach
+is needed. [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/)
+already contains implementations for many of the popular GNNs, so I ran a small
+suite of experiments across several of them in parallel to see which one would
+be most promising:
+
+* GCNConv
+* GATv2Conv
+* TransformerConv
+* GINEConv
+* PNAConv
+* GENConv
+
+I also experimented with various graph design choices along the way:
+
+* static vs dynamic nodes
+* directed vs undirected vs bidirectional edges
+* homogeneous vs heterogeneous graphs
+* different message passing and attention scoring schemes
+
+Some of those experiments delivered promising results. I was on the right track.
+
+#### The breakthrough
+
+_At long last, MMAI supremacy!_
+
+Among the configurations I tried, the **GENConv-based** models trained on a
+dynamic heterogeneous graph with directed edges and attention-style scoring
+seemed to perform best.
+
+Further experiments based on similar configurations rewarded me with exceptional
+results: win rates vs. BattleAI climbed to an average of **65%**. After a year of
+"almost there", this finally felt _good_.
+
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/gnn-chart-v12-winrate.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    The 12th iteration of MMAI: win rates during  vs. VCMI's strongest "BattleAI" bot.
+    This chart tracks the model's performance during the 5 full days of training.
+</div>
+
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/arch-gnn.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    MMAI v12: NN architecture diargram (SVG version <a href="{{ 'assets/img/vcmi-gym/arch-gnn.svg' | relative_url }}" target="_blank">here</a>)
+</div>
+
+This was it. Now I wanted to try and play against this model, 1v1, me vs. MMAI!
+To do it, I first had to find a way to _export_ it from vcmi-gym and then load
+it in the standalone game.
+
+---
+
+### Exporting the model
+
+The charts were looking great, but it was time to test it out myself.
+However, it was still a PyTorch Geometric
+model i.e. just a Python artifact. To load it inside VCMI, I needed a C++ loadable
+format. TorchScript exports had previously been my path, but PyTorch's model
+export for edge devices such as mobile phones has been deprecated in favor of
+[executorch](https://docs.pytorch.org/executorch/stable/index.html), so I went
+for it instead.
+
+#### ExecuTorch: XNNPACK
+
+ExecuTorch supports multiple backends (CoreML, Vulkan, XNNPACK, OpenVINO, etc.).
+The difficulty is that VCMI targets a wide platform matrix
+(Windows/Linux/macOS/iOS/Android; multiple architectures), while most backends
+are platform-specific.
+
+XNNPACK was the only backend that looked plausibly universal. In practice,
+making the model lowerable to XNNPACK required a heavy redesign due to the
+limitations imposed by the limited available opset:
+
+* no dynamic shapes
+* no "smart" indexing
+* softmax/argmax/sampling-style logic had to rewritten with primitive tensor ops
+  (gather/scatter/index_select style)
+* PyG structures (HeteroData/HeteroBatch) had to be replaced by flat, fixed-shape tensors
+* `inf` masks had to be replaced with large finite negatives
+
+In addition, the fixed-size limitation meant that dynamic graphs were not
+an option, so support for several different fixed sizes (**buckets**) was added
+to avoid wasting compute (the appropriate bucket is chosen at runtime based on
+the graph size).
+
+Bucket definitions were guided by size statistics collected over ~10,000
+observations:
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan=7 class="text-center">Number of edges <code>E</code> (total)</th>
+        </tr>
+        <tr>
+            <th>Edge type</th>
+            <th>avg</th>
+            <th>max</th>
+            <th>p99</th>
+            <th>p90</th>
+            <th>p75</th>
+            <th>p50</th>
+            <th>p25</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>ADJACENT</code></td>
+            <td>888</td>
+            <td>888</td>
+            <td>888</td>
+            <td>888</td>
+            <td>888</td>
+            <td>888</td>
+            <td>888</td>
+        </tr>
+        <tr>
+            <td><code>REACH</code></td>
+            <td>355</td>
+            <td>988</td>
+            <td>820</td>
+            <td>614</td>
+            <td>478</td>
+            <td>329</td>
+            <td>209</td>
+        </tr>
+        <tr>
+            <td><code>RANGED_MOD</code></td>
+            <td>408</td>
+            <td>2403</td>
+            <td>1285</td>
+            <td>646</td>
+            <td>483</td>
+            <td>322</td>
+            <td>162</td>
+        </tr>
+        <tr>
+            <td><code>ACTS_BEFORE</code></td>
+            <td>51</td>
+            <td>268</td>
+            <td>203</td>
+            <td>118</td>
+            <td>75</td>
+            <td>35</td>
+            <td>15</td>
+        </tr>
+        <tr>
+            <td><code>MELEE_DMG_REL</code></td>
+            <td>43</td>
+            <td>198</td>
+            <td>160</td>
+            <td>103</td>
+            <td>60</td>
+            <td>31</td>
+            <td>14</td>
+        </tr>
+        <tr>
+            <td><code>RETAL_DMG_REL</code></td>
+            <td>27</td>
+            <td>165</td>
+            <td>113</td>
+            <td>67</td>
+            <td>38</td>
+            <td>18</td>
+            <td>8</td>
+        </tr>
+        <tr>
+            <td><code>RANGED_DMG_REL</code></td>
+            <td>12</td>
+            <td>133</td>
+            <td>60</td>
+            <td>29</td>
+            <td>18</td>
+            <td>9</td>
+            <td>4</td>
+        </tr>
+    </tbody>
+</table>
+<br>
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan=7 class="text-center">Number of inbound edges <code>K</code> (per hex)</th>
+        </tr>
+        <tr>
+            <th>Edge type</th>
+            <th>avg</th>
+            <th>max</th>
+            <th>p99</th>
+            <th>p90</th>
+            <th>p75</th>
+            <th>p50</th>
+            <th>p25</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>ADJACENT</code></td>
+            <td>5.4</td>
+            <td>6</td>
+            <td>6</td>
+            <td>6</td>
+            <td>6</td>
+            <td>6</td>
+            <td>6</td>
+        </tr>
+        <tr>
+            <td><code>REACH</code></td>
+            <td>2.2</td>
+            <td>13</td>
+            <td>10</td>
+            <td>8</td>
+            <td>6</td>
+            <td>4</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td><code>RANGED_MOD</code></td>
+            <td>2.5</td>
+            <td>15</td>
+            <td>8</td>
+            <td>4</td>
+            <td>3</td>
+            <td>2</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td><code>ACTS_BEFORE</code></td>
+            <td>0.3</td>
+            <td>23</td>
+            <td>19</td>
+            <td>15</td>
+            <td>12</td>
+            <td>8</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td><code>MELEE_DMG_REL</code></td>
+            <td>0.3</td>
+            <td>10</td>
+            <td>9</td>
+            <td>8</td>
+            <td>7</td>
+            <td>5</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td><code>RETAL_DMG_REL</code></td>
+            <td>0.2</td>
+            <td>10</td>
+            <td>9</td>
+            <td>8</td>
+            <td>6</td>
+            <td>5</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td><code>RANGED_DMG_REL</code></td>
+            <td>0.1</td>
+            <td>8</td>
+            <td>6</td>
+            <td>3</td>
+            <td>2</td>
+            <td>2</td>
+            <td>1</td>
+        </tr>
+    </tbody>
+</table>
+
+<br>
+
+This took a long time, but at least I gained a solid understanding of the GNN
+implementation internals while working on the solution.
+
+Executorch did work but performance was not good enough -- below are the
+measured time for a single action prediction on a small battlefield (bucket "S"):
+
+700ms is not acceptable in real gameplay: imagine a single-player game with 6
+computer players, each of which fights one or more battles during their turn
+(each battle has involves at least 10 predictions) - that's 30+ seconds, and if
+you've ever played HOMM3, you know that computer turns should be much faster
+than that (usually less than 10 seconds in total).
+
+Additionally, I ran into platform/toolchain issues and memory violation errors
+on Windows. I spend considerable amount of time trying to fix it, but eventually
+gave up. I needed a different deployment strategy.
+
+#### ExecuTorch: Vulkan and CoreML
+
+I explored Vulkan and CoreML exports to see if those would bring a viable
+performance improvement, but stumbled upon many problems:
+
+* Vulkan had instability and platform build issues and the C++ code ultimately
+  failed to load models on android devices due to a cryptic shader-related error.
+* CoreML displayed good runtime performance on Apple devices, but the CoreML
+  models were several times larger in size and the very first forward pass
+  of those models took a whopping 10 seconds on iOS which felt pretty bad.
+
+Neither was a good solution, there had to be a better way.
+
+#### Libtorch (revised)
+
+I returned to libtorch. Compiling it from source is painful, so I
+[built it separately]([https://github.com/smanolloff/vcmi-libtorch-builds])
+and consumed it as an external library in VCMI.
+
+Libtorch had its drawbacks (such as large library size), but it was performing
+well and was more portable compared to ExecuTorch. I decided to go for it, and
+I updated the MMAI [pull request](https://github.com/vcmi/vcmi/pull/4788)
+accordingly.
+
+#### ONNX
+
+During the PR review phase, [@Laserlicht](https://github.com/Laserlicht)
+suggested I should replace libtorch with [ONNX Runtime](https://onnxruntime.ai)
+because it has solid packaging support and broad platform coverage. Having
+spent so much effort to replace libtorch with ExecuTorch, I was not exactly
+eager to try yet another alternative to libtorch, but the suggestion did seem
+reasonable, so it was worth a try.
+
+In a last-ditch effort to find a well-performaning solution with multi-platform
+support, I exported the MMAI models as ONNX graphs. The size footprint was small
+(as small as it could get with 11 million parameters, which is around 20MB).
+It was also relatively easy to wire it up in VCMI, but most notable, the
+inference benchmarks were surprising: ONNX models were **~30% faster** than
+their libtorch counterparts. It was enough for me, given it also provided
+overall smoother integration experience.
+
+With help from [@GeorgeK1ng](https://github.com/GeorgeK1ng), we also managed to
+produce working 32-bit Windows artifacts for the integration. This meant
+VCMI's entire build matrix (a total of 16 different builds) is now buildable
+with MMAI support thanks to ONNX runtime!
+
+<table>
+    <thead>
+        <tr>
+            <th>Model Format</th>
+            <th>Pros</th>
+            <th>Cons</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>TorchScript</th>
+            <td class="align-top">
+                <!-- Pros -->
+                <ul>
+                    <li>Rich OS support</li>
+                    <li>Rich NN op support</li>
+                    <li>Fast inference (40 / 120 / 240 ms)</li>
+                </ul>
+            </td>
+            <td class="align-top">
+                <!-- Cons -->
+                <ul>
+                    <li>Deprecated</li>
+                    <li>No support for 32-bit platforms</li>
+                    <li>Unknown compatibility for edge devices</li>
+                    <li>Slow builds (> 3h)</li>
+                    <li>Large size (20..70MB depending on platform)</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>ExecuTorch: XNNPACK</th>
+            <td class="align-top">
+                <!-- Pros -->
+                <ul>
+                    <li>Rich OS support</li>
+                    <li>Fast builds (< 15min)</li>
+                    <li>Small size (< 5MB)</li>
+                </ul>
+            </td>
+            <td class="align-top">
+                <!-- Cons -->
+                <ul>
+                    <li>Unusable on Windows</li>
+                    <li>Limited NN op support</li>
+                    <li>Slow inference (160 / 150 / 650 ms)</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>ExecuTorch: Vulkan</th>
+            <td class="align-top">
+                <!-- Pros -->
+            </td>
+            <td class="align-top">
+                <!-- Cons -->
+                <ul>
+                    <li>Android only</li>
+                    <li>Poor NN op support</li>
+                    <li>Could not make it work (error on load)</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>ExecuTorch: CoreML</th>
+            <td class="align-top">
+                <!-- Pros -->
+                <ul>
+                    <li>Fast inference, but after warmup</li>
+                </ul>
+            </td>
+            <td class="align-top">
+                <!-- Cons -->
+                <ul>
+                    <li>Apple only</li>
+                    <li>Slow warmup (1st forward pass takes 8s)</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>ONNX Runtime</th>
+            <td class="align-top">
+                <!-- Pros -->
+                <ul>
+                    <li>Rich OS support</li>
+                    <li>Rich platform support</li>
+                    <li>Available <a href="https://conan.io/">Conan</a> recipe</li>
+                    <li>Fast inference (30 / 71 / 210 ms)</li>
+                </ul>
+            </td>
+            <td class="align-top">
+                <!-- Cons -->
+                <ul>
+                    <li>ONNX model API exposes only a single (forward) method</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+NOTE: the inference values are results from my on 3 different devices: Mac M1 / iPhone 2020SE / Samsung Galaxy A71
+
+#### Playtesting
+
+With libtorch set up, I could finally play the game vs my new model :) I
+quickly noticed a worrying sign:
+
+Even though the model played well, it had one persistent behavioral flaw: it was
+still too defensive — often waiting for enemies to step within range, sometimes
+even running away, instead of proactively making attacks.
+
+This in particular was one of the early PR criticisms, so I treated it as a
+blocker and started looking for ways to fix it. I went with the simplest
+approach I could think of - a fixed, negative per-step reward - and it worked
+well: at the expense of a small drop in win rate vs BattleAI, I managed to
+greatly reduce the episode duration (i.e. number of turns in battle):
+
+<div class="row">
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/gnn-chart-v13-len.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm">
+        {% include figure.liquid path="assets/img/vcmi-gym/gnn-chart-v13-winrate.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    Compared to its predecessor, MMAI v13 manages similar win rates against BattleAI,
+    but with a <b>significantly lower</b> turn count. Adjusting the reward
+    function promoted a more aggressive behaviour without degrading performance,
+    albeit at the cost of learning speed.
+</div>
+
+Going on with the manual playthrough, I was pleased to find out that MMAI had
+learned a handful of important tactical moves, such as:
+- actively trying to block shooters
+- not attacking "sleeping" units (paralyzed, petrified, etc.) to avoid
+  waking them up
+- repositioning blocked shooters instead of using their (weaker) melee attack
+- staying out of enemy shooters' range, for the first few rounds
+
+On the other hand, on some occasions it was still making bad decisions,
+althoughsuch it occurred rarely now:
+- may still play too defensively, waiting for the enemy to attack first, never
+  taking the initiative
+- may take "baits", attacking cheap enemy units thrown forward, exposing its own
+- may fail to recognize dead ends on battlefields where the randomly placed
+  terrain obstacles form "blind alleys"
+
+Nonetheless, my overall assessment was positive -- MMAI played reasonably well.
+Better than the bots, still not better than a human, but a worthy
+first-generation model for ML-powered AI in VCMI.
+
+---
+
+### The merge
+
+In December 2025 (more than a year after the
+[MMAI PR](https://github.com/vcmi/vcmi/pull/4788) was initially opened), I posted
+an update with my new MMAI v13 models. This sparked new discussions,
+suggestions, code reviews and improvements. The PR was merged into VCMI's
+`develop` branch, earning a seat in the release train for the upcoming VCMI
+1.7
+
+This means MMAI will finally see proper playtesting by human players. I have
+been collecting gameplay feedback from early testers in the VCMI community,
+and I expect much more to follow. Sadly, the feedback has been mostly negative
+so far :( Players seem to have rather high expectations, reporting the
+model's bad decisions (such as the ones I outlined above) as issues to be
+fixed.
+
+My working theory is that the LLM boom in recent years has raised the AI bar
+to an extent where people take human-like AI behaviour as a baseline.
+LLMs and RL agents are fundamentally different and while transformers brought a
+revolution for all language models, we are yet to see a similar breaktrhough
+in reinforcement learning. Until then, comparing RL agents to LLMs is not a
+fair matchup. That being said, I value the criticism, as it will be useful
+for the upcoming generations of new MMAI models, and I already have a few ideas
+in mind for the next version of MMAI. Stay tuned :)
+
+---
