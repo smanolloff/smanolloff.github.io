@@ -22,9 +22,25 @@
   },
   "work": [
     {
+      "name": "ML Engineer",
+      "position": "Big Data for Smart Society Institute (GATE)",
+      "startDate": "2025-08",
+      "summary": "Researching and applying Graph Neural Network (GNN) based machine learning solutions to address practical problems in the smart city domain.",
+      "highlights": ["Machine Learning", "Software Engineering"]
+    },
+    {
+      "name": "Software Engineer",
+      "position": "Big Data for Smart Society Institute (GATE)",
+      "startDate": "2024-11",
+      "endDate": "2025-07",
+      "summary": "Leading the technical application of Data Spaces within GATE",
+      "highlights": ["Software Engineering"]
+    },
+    {
       "name": "Personal Development",
       "position": "",
       "startDate": "2023-09",
+      "endDate": "2024-10",
       "summary": "Taking time off work to upskill myself on ML through research and hands-on personal projects.",
       "highlights": ["Machine Learning"]
     },
@@ -35,11 +51,11 @@
       "endDate": "2023-08",
       "summary": "",
       "highlights": [
-        "Re-designed existing Ruby services, building them from scratch using Elixir and Go; significantly reducing operational costs, improving performance and separating concerns.",
-        "Reduced downtime by incorporating extensive observability into new and existing applications by leveraging OpenTelemetry, Prometheus, Grafana and Honeycomb",
-        "Designed and implemented architectural improvements, emphasizing modularity, scalability, performance, reliability, automated testing and event-driven operation",
-        "Extensively used Kubernetes and GitHub actions for CI/CD",
-        "Contributed to the Elixir open-source community by implementing OpenTracing clients and AWS signers",
+        "Re-designing existing Ruby services, building them from scratch using Elixir and Go; significantly reducing operational costs, improving performance and separating concerns.",
+        "Reducing downtime by incorporating extensive observability into new and existing applications by leveraging OpenTelemetry, Prometheus, Grafana and Honeycomb",
+        "Designing and implemented architectural improvements, emphasizing modularity, scalability, performance, reliability, automated testing and event-driven operation",
+        "Extensively using Kubernetes and GitHub actions for CI/CD",
+        "Contributing to the Elixir open-source community by implementing OpenTracing clients and AWS signers",
         "OpenTracing clients and AWS signers."
       ]
     },
@@ -50,10 +66,10 @@
       "endDate": "2020-12",
       "summary": "",
       "highlights": [
-        "Developed RESTful backend micro-services in close collaboration with web, mobile and other backend developers to replace the existing monoliths, separating concerns into single-responsibility applications by using Ruby, Node.js, Python, PostgreSQL, Redis, RabbitMQ, Elasticsearch, AWS S3, AWS EC2 and Jenkins CI/CD",
-        "Gained experience in the authentication, anti-fraud, ecom, fee, mobile edge, transaction processing, receipts, and reporting domains",
-        "Contributed to the Ruby open-source community",
-        "Conducted training for interns"
+        "Developing RESTful backend micro-services in close collaboration with web, mobile and other backend developers to replace the existing monoliths, separating concerns into single-responsibility applications by using Ruby, Node.js, Python, PostgreSQL, Redis, RabbitMQ, Elasticsearch, AWS S3, AWS EC2 and Jenkins CI/CD",
+        "Gaining experience in the authentication, anti-fraud, ecom, fee, mobile edge, transaction processing, receipts, and reporting domains",
+        "Contributing to the Ruby open-source community",
+        "Conducting training for interns"
       ]
     },
     {
@@ -63,8 +79,8 @@
       "endDate": "2015-10",
       "summary": "",
       "highlights": [
-        "Worked on a JSON-RPC backend for mobile apps (Ruby, PostgreSQL)",
-        "Proposed and implemented a coding style guide for improving codebase readability, consistency and maintainability"
+        "Working on a JSON-RPC backend for mobile apps (Ruby, PostgreSQL)",
+        "Proposing and implementing a coding style guide for improving codebase readability, consistency and maintainability"
       ]
     },
     {
@@ -74,8 +90,8 @@
       "endDate": "2014",
       "summary": "",
       "highlights": [
-        "Designed and developed a back-office application (Ruby on Rails)",
-        "Developed custom discovery scripts for HP UCMDB (Python)"
+        "Designing and developing a back-office application (Ruby on Rails)",
+        "Developing custom discovery scripts for HP UCMDB (Python)"
       ]
     },
     {

@@ -1506,18 +1506,18 @@ In this test, we play as red, while VCMI's BattleAI bot plays as blue.
 The actual in-game transitions are as follows:
 
 1. **Initial condition:**
-    - red unit **0** is active
+    - red unit **1** is active
     - the next action is: move to y=8 x=5.
 1. **First transition:**
     - blue unit **2** is active
     - the next action is: attack-move to hex y=7 x=4, striking at red unit
-      **0**.
+      **1**.
 1. **Second transition:**
     - blue unit **2** is active <ins>again</ins> (perhaps it has waited earlier)
     - the next action is: attack-move to hex y=7 x=4, striking at red unit
-      **0** (again)
+      **1** (again)
 1. **Third transition:**
-    - red unit **0** was killed.
+    - red unit **1** was killed.
     - battle has ended.
 
 Comparing this against the world model's dream (imagined transitions):
@@ -1528,14 +1528,14 @@ Comparing this against the world model's dream (imagined transitions):
   the previous state + action, as well as predicting the enemy's next action.
 1. **Second _imagined_ transition:** a distorted version of the actual state:
     - a _phantom_ blue unit is active (it's not visible on the map).
-    - the predicted action is: attack-move to y=7 x=6, striking at red unit **0**.
+    - the predicted action is: attack-move to y=7 x=6, striking at red unit **1**.
     This is no longer the same as the actual transition, but it's close
     (apparently, the model becomes uncertain when the same unit has to act twice).
 1. **Third _imagined_ transition:** an even blurrier version of the actual state:
     - the _phantom_ unit has materialized as blue unit **0←**. The arrow
         indicates this is a wide unit (occupying 2 hexes), but its second hex
         is marked "unreachable" (dark circle).
-    - red unit **0** was _not_ killed.
+    - red unit **1** was _not_ killed.
     - the battle has _not_ ended.
     - blue unit **4** is active.
 
@@ -1563,7 +1563,7 @@ Comparing the actual vs imagined stats:
   if unit **2** was _split in two_, preserving the overall strenth of the blue
   army and resulting in one extra unit.
 - The _still alive_ red unit **1** has barely survived and will _not_ act for
-  another 17 turns (Queue=18). This is a signals that the model is uncertain if
+  another 17 turns (Queue=18) - a signal that the model is uncertain if
   the unit is _dead or alive_.
 
 This shows how the imagined states deeper in the dream drift further away from
@@ -2127,7 +2127,7 @@ with MMAI support thanks to ONNX runtime!
             <td class="align-top">
                 <!-- Cons -->
                 <ul>
-                    <li>Deprecated</li>
+                    <li>Deprecated for mobile OS</li>
                     <li>No support for 32-bit platforms</li>
                     <li>Unknown compatibility for edge devices</li>
                     <li>Slow builds (> 3h)</li>
@@ -2173,7 +2173,7 @@ with MMAI support thanks to ONNX runtime!
             <td class="align-top">
                 <!-- Pros -->
                 <ul>
-                    <li>Fast inference, but after warmup</li>
+                    <li>Fast inference, but needs warmup</li>
                 </ul>
             </td>
             <td class="align-top">
@@ -2240,14 +2240,14 @@ greatly reduce the episode duration (i.e. number of turns in battle):
 
 Going on with the manual playthrough, I was pleased to find out that MMAI had
 learned a handful of important tactical moves, such as:
-- actively trying to block shooters
+- actively trying to block enemy shooters
 - not attacking "sleeping" units (paralyzed, petrified, etc.) to avoid
   waking them up
-- repositioning blocked shooters instead of using their (weaker) melee attack
-- staying out of enemy shooters' range, for the first few rounds
+- repositioning its own blocked shooters instead of using their weak melee attack
+- staying out of enemy shooters' range, for the first few rounds at least
 
 On the other hand, on some occasions it was still making bad decisions,
-althoughsuch it occurred rarely now:
+although such occurred rarely now:
 - may still play too defensively, waiting for the enemy to attack first, never
   taking the initiative
 - may take "baits", attacking cheap enemy units thrown forward, exposing its own
@@ -2269,7 +2269,7 @@ suggestions, code reviews and improvements. The PR was merged into VCMI's
 `develop` branch, earning a seat in the release train for the upcoming VCMI
 1.7
 
-This means MMAI will finally see proper playtesting by human players. I have
+This means MMAI will finally see proper playtesting from human players. I have
 been collecting gameplay feedback from early testers in the VCMI community,
 and I expect much more to follow. Sadly, the feedback has been mostly negative
 so far :( Players seem to have rather high expectations, reporting the
