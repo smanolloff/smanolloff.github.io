@@ -3,3 +3,11 @@ $ docker create \
     --name smanolloff.github.io \
     --init -p 8888:8080 -p 35729:35729 \
     -v "$PWD":/srv/jekyll amirpourmand/al-folio:v0.14.7
+
+
+=========================
+To update to a newer version:
+
+    git fetch al-folio
+    git rebase al-folio/vX.Y.Z
+
