@@ -2105,7 +2105,7 @@ produce working 32-bit Windows artifacts for the integration. This meant
 VCMI's entire build matrix (a total of 16 different builds) is now buildable
 with MMAI support thanks to ONNX runtime!
 
-<table>
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>Model Format</th>
