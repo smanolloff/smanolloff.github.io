@@ -1,0 +1,22 @@
+// put zoomed image above navbar (1032)
+.medium-zoom-overlay,
+.medium-zoom-image--opened {
+  z-index: 1033;
+}
+
+// github uses this for READMEs which looks better than Roboto
+body {
+  font-family: Helvetica
+}
+
+// github adds a horizontal line for h2 & h3
+.post {
+  h1, h2 {
+    border-bottom: 1px solid var(--global-divider-color);
+  }
+}
+
+// replace blue for inline code (looks like links)
+code, pre code {
+  color: var(--global-text-color);
+}
