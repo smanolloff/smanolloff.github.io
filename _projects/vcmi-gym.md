@@ -1805,8 +1805,9 @@ results: win rates vs. BattleAI climbed to an average of **65%**. After a year o
 </div>
 <div class="caption">
     The 12th iteration of MMAI: win rates during  vs. VCMI's strongest "BattleAI" bot.
-    This chart tracks the model's performance during the 5 full days and
-    2.5 million battles of training.
+    The chart tracks the model's performance during the full training period.
+    This model alone required 🕣5 full days of training, ⚔️2.5 million battles
+    and 💰$45 of hardware rental costs.
 </div>
 
 <div class="row">
@@ -2237,7 +2238,7 @@ greatly reduce the episode duration (i.e. number of turns in battle):
 <div class="caption">
     Compared to its predecessor, MMAI v13 manages similar win rates against BattleAI,
     but with a <b>significantly lower</b> turn count. Adjusting the reward
-    function promoted a more aggressive behaviour without degrading performance,
+    function promoted more aggressive behaviour without degrading performance,
     albeit at the cost of learning speed.
 </div>
 
