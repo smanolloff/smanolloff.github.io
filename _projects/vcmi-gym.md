@@ -1464,13 +1464,15 @@ and rollouts must be generated in an autoregressive manner. This naturally
 leads to a fundamental problem: **autoregressive error accumulation**. It
 manifests as innacuracies and hallucinations, resulting in invalid states. For
 example, a unit which _may have been paralyzed_ would mean its "paralyze" flag
-(which should be either 1 or 0) is somewhere in-between, e.g. `0.4`. There is
-no such thing as a "40% paralyzed creature" in VCMI - it's either paralyzed or not.
+(which should be either 1 or 0) is a superposition of both states, e.g. `0.4`.
+There is no such thing as a "40% paralyzed creature" in VCMI - it's either
+paralyzed or not.
 
 To contain this, I collapsed states after every transition and fed the collapsed
-versions forward. You can think of collapsing as rounding in the case of
-numeric is a _round_ operation.
-For categoricals, this That eliminated many reconstruction failures, but it exposed the
+versions forward. _Collapsing_ is a term borrowed from
+[quantum mechanics](https://en.wikipedia.org/wiki/Wave_function_collapse).
+You can think of it as rounding in the case of numeric data. For categoricals,
+this eliminated many reconstruction failures, but it also exposed the
 model's hallucinations more clearly:
 
 * some long exchanges caused excessive drift
@@ -1560,10 +1562,10 @@ Comparing the actual vs imagined stats:
   you will notice that creatures in the dream appear _more powerful_ than they
   actually are - an interesting topic on its own.
 - The _phantom_ unit (blue unit **0**) is very similar to blue unit **2**. As
-  if unit **2** was _split in two_, preserving the overall strenth of the blue
+  if unit **2** was _split in two_, preserving the overall strength of the blue
   army and resulting in one extra unit.
-- The _still alive_ red unit **1** has barely survived and will _not_ act for
-  another 17 turns (Queue=18) - a signal that the model is uncertain if
+- The _still alive_ red unit **1** has barely survived and _will not act for
+  another 17 rounds_ (Queue=18) - a clear signal that the model is uncertain if
   the unit is _dead or alive_.
 
 This shows how the imagined states deeper in the dream drift further away from
@@ -1803,7 +1805,8 @@ results: win rates vs. BattleAI climbed to an average of **65%**. After a year o
 </div>
 <div class="caption">
     The 12th iteration of MMAI: win rates during  vs. VCMI's strongest "BattleAI" bot.
-    This chart tracks the model's performance during the 5 full days of training.
+    This chart tracks the model's performance during the 5 full days and
+    2.5 million battles of training.
 </div>
 
 <div class="row">
