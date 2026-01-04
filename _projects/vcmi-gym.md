@@ -107,7 +107,7 @@ third-party RL environment
 Worthy of a separate project on its own, training an Adventure AI is out of
 scope for now. A detailed action plan is not yet required.
 
-## Dev log
+## Dev journal
 
 I will be outlining parts of the project's development lifecycle, focusing on
 those that seemed most impactful.
