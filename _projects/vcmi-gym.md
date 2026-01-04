@@ -2267,13 +2267,13 @@ first-generation model for ML-powered AI in VCMI.
 ### The merge
 
 In late 2025 (more than a year after the
-[MMAI PR](https://github.com/vcmi/vcmi/pull/4788) was initially opened), I posted
+[PR](https://github.com/vcmi/vcmi/pull/4788) was initially opened), I posted
 an update with my new MMAI v13 models. This sparked new discussions,
-suggestions, code reviews and improvements. The PR was merged into VCMI's
-`develop` branch, earning a seat in the release train for the upcoming VCMI
-`1.7`.
+suggestions, code reviews and improvements and, at last - a merge.
 
-This means MMAI will finally see proper playtesting from human players. I have
+**MMAI was officially released with VCMI-1.7**!
+
+This means it will finally see proper playtesting from human players. I have
 been collecting gameplay feedback from early testers in the VCMI community,
 and I expect much more to follow. Sadly, the feedback has been mostly negative
 so far :( Players seem to have rather high expectations, reporting the
