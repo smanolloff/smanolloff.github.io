@@ -2214,7 +2214,7 @@ devices: Mac M1 / iPhone 2020SE / Samsung Galaxy A71
 
 #### Playtesting
 
-With libtorch set up, I could finally play the game vs my new model :) I
+With onnxruntime set up, I could finally play the game vs my new model :) I
 quickly noticed a worrying sign:
 
 Even though the model played well, it had one persistent behavioral flaw: it was
