@@ -222,26 +222,26 @@ $Op(other_concat, "Concat")
 obs_global --> other_concat : "(10)"
 players_flatten --> other_concat : "(46)"
 
-$FC(fc_other, "FC", "56 → 128")
+$FC(fc_other, "FC", "56 → d")
 other_concat --> fc_other : "(56)"
 
 $Conv(gnn_hexes, "GENConv GNN", "" \
   , $line($ljust(25, "# Layers: 3")) + \
     $line($ljust(25, "# Hidden Channels: 256")) + \
-    $endl($ljust(25, "# Output Channels: 128")) \
+    $endl($ljust(25, "# Output Channels: d (128)")) \
 )
 
 obs_hexes --> gnn_hexes : "[graph]"
 
 $Op(hexes_mean, "Mean", "dim=0")
-gnn_hexes --> hexes_mean : "(165, 128)"
+gnn_hexes --> hexes_mean : "(165, d)"
 
 $Op(sum_global, "Sum")
-hexes_mean --> sum_global : "(128)"
-fc_other --> sum_global : "(128)"
+hexes_mean --> sum_global : "(d)"
+fc_other --> sum_global : "(d)"
 
 $FC(act0_head, "FC", "56 → 4")
-sum_global --> act0_head : "(128)"
+sum_global --> act0_head : "(d)"
 
 $Op(act0_sample, "Sample", "Masked Categorical")
 act0_head --> act0_sample : "(4)"
@@ -249,22 +249,22 @@ act0_head --> act0_sample : "(4)"
 $Output(act0_out, "Main action")
 act0_sample --> act0_out : "(1)"
 
-$Op(emb_act0, "Embedding", "n=4 d=128")
+$Op(emb_act0, "Embedding", "n=4 d=d")
 act0_out --> emb_act0 : ""
 
 $Op(q_hex1_concat, "Concat", "dim=0")
-sum_global --> q_hex1_concat : "(128)"
-emb_act0 --> q_hex1_concat : "(128)"
+sum_global --> q_hex1_concat : "(d)"
+emb_act0 --> q_hex1_concat : "(d)"
 
-$FC(wq_hex1_fc, "FC", "256 → 128", "Query vector\nfor Hex #1")
+$FC(wq_hex1_fc, "FC", "256 → d", "Query vector\nfor Hex #1")
 q_hex1_concat --> wq_hex1_fc : "(256)"
 
-$FC(wk_hex1_fc, "FC", "128 → 128", "Key vector\nfor Hex #1")
-gnn_hexes --> wk_hex1_fc : "(165, 128)"
+$FC(wk_hex1_fc, "FC", "d → d", "Key vector\nfor Hex #1")
+gnn_hexes --> wk_hex1_fc : "(165, d)"
 
 $Op(hex1_matmul, "SDPA", "Attention scoring")
-wq_hex1_fc --> hex1_matmul : "(128)"
-wk_hex1_fc --> hex1_matmul : "(165, 128)"
+wq_hex1_fc --> hex1_matmul : "(d)"
+wk_hex1_fc --> hex1_matmul : "(165, d)"
 
 $Op(hex1_sample, "Sample", "Masked Categorical")
 hex1_matmul --> hex1_sample : "(165)"
@@ -274,21 +274,21 @@ hex1_sample --> hex1_out : "(1)"
 
 $Op(hex1_index_select, "Index select")
 hex1_out -> hex1_index_select : ""
-gnn_hexes --> hex1_index_select : "(165, 128)"
+gnn_hexes --> hex1_index_select : "(165, d)"
 
 $Op(q_hex2_concat, "Concat", "dim=0")
-sum_global --> q_hex2_concat : "(128)"
-hex1_index_select --> q_hex2_concat : "(128)"
+sum_global --> q_hex2_concat : "(d)"
+hex1_index_select --> q_hex2_concat : "(d)"
 
-$FC(wk_hex2_fc, "FC", "128 → 128", "Key vector\nfor Hex #2")
-gnn_hexes --> wk_hex2_fc : "(165, 128)"
+$FC(wk_hex2_fc, "FC", "d → d", "Key vector\nfor Hex #2")
+gnn_hexes --> wk_hex2_fc : "(165, d)"
 
-$FC(wq_hex2_fc, "FC", "256 → 128", "Query vector\nfor Hex #2")
+$FC(wq_hex2_fc, "FC", "256 → d", "Query vector\nfor Hex #2")
 q_hex2_concat --> wq_hex2_fc : "(256)"
 
 $Op(hex2_matmul, "SDPA", "Attention scoring")
-wq_hex2_fc --> hex2_matmul : "(128)"
-wk_hex2_fc --> hex2_matmul : "(165, 128)"
+wq_hex2_fc --> hex2_matmul : "(d)"
+wk_hex2_fc --> hex2_matmul : "(165, d)"
 
 $Op(hex2_sample, "Sample", "Masked Categorical")
 hex2_matmul --> hex2_sample : "(165)"
