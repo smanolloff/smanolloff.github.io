@@ -33,7 +33,6 @@ $max-content-width: {{ site.max_width }};
   background: rgba(28, 28, 29, 0.933);
 }
 
-
 // github uses this for READMEs and it's perfect
 body {
   font-family: Helvetica
@@ -49,4 +48,16 @@ body {
 // replace blue (looks like links) for inline code
 code, pre code {
   color: var(--global-text-color);
+}
+
+//
+// Compact tables (markdown ones are huge)
+//
+
+.table-sm th,
+.table-sm td {
+    font-size: .8rem !important;
+    padding-top: .4rem !important;
+    padding-bottom: .4rem !important;
+    line-height: 1 !important;
 }

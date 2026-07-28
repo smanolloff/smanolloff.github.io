@@ -2105,7 +2105,7 @@ produce working 32-bit Windows artifacts for the integration. This meant
 VCMI's entire build matrix (a total of 16 different builds) is now buildable
 with MMAI support thanks to ONNX runtime!
 
-<table>
+<table class="table-sm compact-table">
     <thead>
         <tr>
             <th>Model Format</th>
@@ -2286,3 +2286,276 @@ for the upcoming generations of new MMAI models, and I already have a few ideas
 in mind for the next versions. Stay tuned :)
 
 ---
+
+## Fast forward to 2026
+
+The 15th iteration of the model (**v15**) is my most ambitious one yet. I
+redesigned the observation space around a truly heterogeneous graph with 5
+node types and 30 edge types, giving the agent a much richer description of the
+battlefield and allowing it to make more informed decisions. Both sides of the
+RL interface are now dynamic: a typical observation contains around 10K–100K
+integer values for edge indices and 2K–20K floating-point values for edge
+attributes, or roughly 50–500KB of data, although rare observations can be
+several times larger or smaller. The action space varies as well. Instead of
+producing a fixed number of action probabilities and applying a validity mask,
+the neural network emits exactly one probability per action node in the input
+graph. Every output therefore represents a valid action, with no special
+positional ordering. This was arguably the most impactful architectural change
+in v15.
+
+The training setup also grew more demanding. The agents no longer face only
+BattleAI: they now play against MMAI opponents being trained in parallel, which
+consume additional GPU resources of their own. Combined with the larger,
+dynamic observations, this made the RL loop considerably more hungry for GPU
+memory. I therefore returned to vanilla PPO and introduced a few additional
+memory-saving measures to keep training within a single GPU's budget.
+
+#### The observation space
+
+The v15 observation is a heterogeneous graph with five node types and 30 edge
+types:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-graph.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    MMAI v15: Graph diargram (SVG version <a href="{{ 'assets/img/vcmi-gym/v15-graph.svg' | relative_url }}" target="_blank">here</a>)
+</div>
+
+The graph diagram above the available node types, edge types and edge attributes. Node attributes are too many to render and are listed below:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-10">
+        <table class="table-sm">
+            <!-- GLOBAL -->
+            <tr class="table-active">
+                <th colspan="2" class="text-center">Global (1 node)</th>
+            </tr>
+            <tr><td><code>BATTLE_WINNER</code></td><td>Side that won (or n/a if battle is not finished)</td></tr>
+            <tr><td><code>BATTLE_ROUND</code></td><td>Round counter</td></tr>
+            <tr><td><code>HAS_UPPER_TOWER</code></td><td rowspan="3">Hit points remaining (0..3)</td></tr>
+            <tr><td><code>HAS_MIDDLE_TOWER</code></td></tr>
+            <tr><td><code>HAS_BOTTOM_TOWER</code></td></tr>
+            <tr><td><code>HAS_GATE_CORPSE</code></td><td rowspan="2">Is there a corpse on that hex?</td></tr>
+            <tr><td><code>HAS_BRIDGE_CORPSE</code></td></tr>
+            <!-- PLAYER -->
+            <tr class="table-active">
+                <th colspan="2" class="text-center">Player (2 nodes)</th>
+            </tr>
+            <tr><td><code>BATTLE_SIDE</code></td><td>Left / right</td></tr>
+            <tr><td><code>IS_ACTIVE</code></td><td>Whether this player must act now</td></tr>
+            <tr><td><code>ARMY_VALUE_NOW_REL0</code></td><td>[Army value] divided by [battlefield value at start]</td></tr>
+            <tr><td><code>ARMY_VALUE_NOW_REL</code></td><td>[Army value] divided by [battlefield value]</td></tr>
+            <tr><td><code>ARMY_HP_NOW_REL</code></td><td>[Army HP] divided by [battlefield HP]</td></tr>
+            <tr><td><code>VALUE_KILLED_NOW_REL</code></td><td>[Value killed since last action] divided by [battlefield value]</td></tr>
+            <tr><td><code>VALUE_LOST_NOW_REL</code></td><td>[Value lost since last action] divided by [battlefield value]</td></tr>
+            <tr><td><code>DMG_DEALT_NOW_REL</code></td><td>[Dmg dealt since last action] divided by [battlefield HP]</td></tr>
+            <tr><td><code>DMG_RECEIVED_NOW_REL</code></td><td>[Dmg received since last action] divided by [battlefield HP]</td></tr>
+            <!-- UNIT -->
+            <tr class="table-active">
+                <th colspan="2" class="text-center">Unit (1 node per stack)</th>
+            </tr>
+            <tr><td><code>VALUE_REL</code></td><td>[Stack value] divided by [battlefield value]</td></tr>
+            <tr><td><code>SHOTS</code></td><td></td></tr>
+            <tr><td><code>DMG_UNCERTAINTY</code></td><td>See note [1]</td></tr>
+            <tr><td><code>IS_ACTIVE</code></td><td>Is it this stack's turn to act?</td></tr>
+            <tr><td><code>IS_ENEMY</code></td><td>Whether this stack is an enemy to the active player</td></tr>
+            <tr><td><code>IS_SLEEPING</code></td><td>Whether this stack is blinded, petrified, or paralyzed</td></tr>
+            <tr><td><code>IS_WAR_MACHINE</code></td>Whether this stack is a catapult, ballista, first-aid tent, or ammo cart<td></td></tr>
+            <tr><td><i>... 28 more</i></td><td>other stack traits, e.g. life drain, no melee penalty, etc.</td></tr>
+            <!-- HEX -->
+            <tr class="table-active">
+                <th colspan="2" class="text-center">Hex (165 nodes)</th>
+            </tr>
+            <tr><td><code>Y_COORD</code></td><td>0..10</td></tr>
+            <tr><td><code>X_COORD</code></td><td>0..14</td></tr>
+            <tr><td><code>IS_PASSABLE</code></td><td>Whether this hex is empty, mine, firewall, open gate, or a closed gate for the defender</td></tr>
+            <tr><td><code>IS_STOPPING</code></td><td>Whether this hex is a moat or quicksand</td></tr>
+            <tr><td><code>IS_DAMAGING_L</code></td><td>Whether this hex is a moat, or a mine/firewall cast by the right side</td></tr>
+            <tr><td><code>IS_DAMAGING_R</code></td><td>Whether this hex is a moat, or a mine/firewall cast by the left side</td></tr>
+            <tr><td><code>IS_SIEGE_GATE</code></td><td>The two gate hexes</td></tr>
+            <tr><td><code>IS_SIEGE_BRIDGE</code></td><td>The bridge hex</td></tr>
+            <tr><td><code>IS_OBSTACLE</code></td><td>Permanent obstacles, indestructible walls, space between boats, etc.</td></tr>
+            <tr><td><code>WALL_HEALTH</code></td><td>1..3 for destructible walls; 0 for indestructible/destroyed walls, or non-wall hexes</td></tr>
+            <!-- ACTION -->
+            <tr class="table-active">
+                <th colspan="2" class="text-center">Action (1 node per stack action)</th>
+            </tr>
+            <tr><td><code>ACTION_TYPE</code></td><td>Wait, defend, move, amove, or shoot</td></tr>
+            <tr><td><code>IS_ACTIVE</code></td><td>Whether this is an action of the currently active stack</td></tr>
+        </table>
+    </div>
+</div>
+<div class="row justify-content-md-center">
+    <div class="col-sm-10">
+        <p>
+        <br>
+        [1] Damage uncertainty is based on the stack's min/max damage and count. See
+            <a href="https://github.com/vcmi/vcmi/blob/24579d36addd8e169e794f9fe5060f29c8c2e1cf/lib/battle/BattleInfo.cpp#L625-L642">here</a>
+            and
+            <a href="https://github.com/smanolloff/vcmi/blob/d13cc22980bd781315b42e2e4f0294d6a36383f4/AI/MMAI/BAI/v15/graph/nodes/unit.cpp#L273-L277">here</a>
+            for details.
+        </p>
+    </div>
+</div>
+
+
+That's quite some information available to the agent. It comes at a cost - the
+processing time needed to build the observation is higher, which may
+impact low-tier edge devices (such as 10+ year-old phones), but MMAI can always
+be turned off if needed. Overall, the computational time for a single
+observation plus NN CPU inference processing on a modern device like MacBook
+M2 (2023) is less than 30ms, which is still fine. 
+
+#### The NN architecture
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-10">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-gnn-arch.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    MMAI v15: Neural network architecture diargram (SVG version <a href="{{ 'assets/img/vcmi-gym/v15-gnn-arch.svg' | relative_url }}" target="_blank">here</a>)
+</div>
+
+I experimented with several GNN architectures (including GATConv and RGGC), but
+none performed as well as GENConv. It seemed particularly well-suited to this RL
+problem, so the core GNN architecture remained unchanged. It is entirely
+possible that carefully tuning each alternative — for example,
+[GATv2Conv](https://pytorch-geometric.readthedocs.io/en/2.8.0/generated/torch_geometric.nn.conv.GATv2Conv.html)'s
+dropout probability or number of attention heads — would produce better results.
+That is a deep rabbit hole, however, requiring far more experimentation than my
+budget allows. The comparison is therefore based mostly on the default GNN
+configurations.
+
+#### The RL algorithm
+
+The PPO-DNA algorithm used in previous iterations was no longer viable: the GPUs
+kept running out of memory even though I was renting top-of-the-line RTX 5090s.
+Their performance advantage over lower-grade GPUs justified the higher price,
+but not even they could fit the new training loop comfortably. I had two
+options: move to a multi-GPU architecture, or find ways to reduce memory usage.
+Multi-GPU training required both code changes and, more importantly, more money,
+so I chose the latter:
+
+* I cut the observation buffer in half, from 5K to 2.5K observations per
+  training step, reducing its memory consumption by 50%. Using a small
+  buffer may hinder training, but 2.5K was reasonable tradeoff.
+* I replaced PPO-DNA with vanilla PPO and a shared actor/critic body, lowering
+  GPU memory consumption by a further 50% while keeping training performance
+  stable.
+
+#### The training setup
+
+Previous iterations were trained on maps with a fixed collection of
+pre-generated, pre-balanced armies — see [Datasets](#-datasets) — and fought
+exclusively against BattleAI, VCMI's built-in scripted bot. This time the armies
+were generated dynamically and the opponent pool changed as training
+progressed. For the first few days, while the agents learned the basic mechanics
+of the game, they still played against BattleAI. After that I introduced the
+"VIP" AI—a custom scripted bot that protects its shooters—as well as other MMAI
+models being trained in parallel. The final opponent mix was 10% BattleAI, 40%
+VIPAI and 50% MMAI.
+
+This was meant to address a weakness in previous iterations: an MMAI trained
+only against BattleAI learns to behave as if every opponent were BattleAI,
+which does not work particularly well against humans. Consider the situation
+below:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-screenshot-vip.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    Introducing VIPAI: a scripted AI which guards its shooters.
+</div>
+
+The shooter (the "VIP" stack) is guarded by the other stacks, a typical tactic
+used by human players. BattleAI never camps in front of its shooters, so an MMAI
+trained exclusively against it learns to wait for the guards to advance first.
+When a human controls those guards, they simply stay put. MMAI keeps waiting and
+eventually dies to the player's "free" shots without showing much resistance,
+which makes it look rather stupid. Introducing VIPAI and MMAI opponents into the
+training loop corrects this behaviour.
+
+#### v15 results
+
+During training, MMAI v15 achieved a **72% win rate against BattleAI**. This
+number alone is an achievement on its own, however it does not paint the full
+picture:
+
+1. Randomly generated armies are never equal in strength. The "matchmaking" algorithm 
+  contains an inherent randomness which sometimes results in unwinnable battles.
+  For example, 100 sharpshooters (total value 36500) vs. 8 black dragons (total value
+  36040) is not a fair matchup, as the sharpshooters can **never** win such a battle.
+  This means that BattleAI will always win if it controls the black dragons.
+  For this reason, I started evaluating **mirror** matchups where both armies are
+  identical. In the mirror matchup test, MMAI winrate vs. BattleAI jumped to **over 88%**,
+  tested on more than 10K battles with randomly generated, mirrored armies. In the same
+  test setup, MMAI (v15)'s winrate vs. MMAI (v13) reached the formidable 75%. This was
+  a solid proof that the v15 version of the model is vastly superior to its predecessor.
+
+  <table class="table-sm">
+    <thead>
+      <tr>
+        <th class="text-center">Opponent</th>
+        <th class="text-center">Model</th>
+        <th class="text-center">Winrate</th>
+        <th class="text-center">Setup</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan=4>BattleAI</td>
+        <td rowspan=2>MMAI (v13)</td>
+        <td>63%</td>
+        <td>random armies (value-matched)</td>
+      </tr>
+      <tr>
+        <td>80%</td>
+        <td>random armies (mirrored)</td>
+      </tr>
+      <tr>
+        <td rowspan=4>MMAI (v15)</td>
+        <td>71%</td>
+        <td>random armies (value-matched)</td>
+      </tr>
+      <tr>
+        <td>89%</td>
+        <td>random armies (mirrored)</td>
+      </tr>
+      <tr>
+        <td rowspan=2>MMAI (v13)</td>
+        <td>62%</td>
+        <td>random armies (mirrored)</td>
+      </tr>
+      <tr>
+        <td>78%</td>
+        <td>random armies (mirrored)</td>
+      </tr>
+    </tbody>
+  </table>
+ 
+
+  <!-- TODO: table-->
+
+<!-- TODO: screenshot of W&B eval graphs -->
+
+That number alone does not tell the whole story. The more important improvement
+is how well v15 performs against other opponents. It achieved a **63% win rate
+against MMAI v13**, even though v13 itself had a 65% win rate against BattleAI.
+In other words, v15 learned to handle a diverse opponent pool rather than merely
+specializing against one scripted bot.
+
+I confirmed this by playtesting the model in a single-player game, and I liked
+what I saw. There were still occasional hiccups, but overall it played well. It
+was time to release it to the VCMI community and gather feedback from a much
+broader range of games. I am sure there will still be situations where it seems
+to underperform. Faced with an overwhelming army, for example, I expect it to
+suicide on purpose. I consider that a minor issue — it does not change the result,
+and I have always thought players might appreciate an AI that ends the battle
+quickly instead of prolonging the inevitable. Time—or rather, the player
+base—will tell :)
