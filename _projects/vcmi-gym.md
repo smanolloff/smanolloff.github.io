@@ -2585,7 +2585,7 @@ at higher VCMI difficulty levels.
     </div>
     <div class="col-sm-1"></div>
     <div class="col-sm-5">
-        {% include figure.liquid path="assets/img/vcmi-gym/v15-my-tactic.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-my-tactic.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
     </div>
 </div>
 <div class="caption">
