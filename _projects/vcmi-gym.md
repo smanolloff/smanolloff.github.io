@@ -1416,8 +1416,6 @@ L = mse(continuous) + bce(binary) + ce(categorical)
 After a couple of months of training and iteration I had a `t10n` and `p10n`
 pair that looked promising.
 
-<!-- TODO: screenshots of W&B charts for t10n and p10n -->
-
 #### Handling simulation uncertainty
 
 The first time I tried to render `t10n`'s predicted output, it became obvious
@@ -2277,21 +2275,43 @@ This means it will finally see proper playtesting from human players. I have
 been collecting gameplay feedback from early testers in the VCMI community,
 and I expect much more to follow. 
 
+.
+
+.
+
+.
+
+
+## Fast forward to 2026
+
+My son, Stefan, is now eight months old and needs more attention with each passing day, so I rarely find time to work on my project. Nevertheless, I have continued improving MMAI, and I have some exciting news to share!
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        {% include figure.liquid path="assets/img/vcmi-gym/stefan-2026.jpeg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    Stefan — the best little reason my projects have to wait.
+</div>
+
 ## MMAI v15 "Graphmind"
 
 The 15th iteration of MMAI (**v15**) is my most ambitious one yet. I
 nicknamed it "Graphmind": a smarter model with a redesigned observation space
 around a truly heterogeneous graph with 5 node types and 30 edge types, giving
 the agent a much richer description of the battlefield and allowing it to make
-more informed decisions. Both sides of the RL interface are now dynamic: a
-typical observation contains around 10K–100K integer values for edge indices and
-2K–20K floating-point values for edge attributes, or roughly 50–500KB of data,
-although rare observations can be several times larger or smaller. The action
-space varies as well. Instead of producing a fixed number of action
-probabilities and applying a validity mask, the neural network emits exactly one
-probability per action node in the input graph. Every output therefore
-represents a valid action, with no special positional ordering. This was
-arguably the most impactful architectural change in v15.
+more informed decisions.
+
+Both sides of the RL interface are now dynamic: a typical observation contains
+around 10K–100K integer values for edge indices and 2K–20K floating-point values
+for edge attributes, or roughly 50–500KB of data, although rare observations can
+be several times larger or smaller. The action space varies as well. Instead of
+producing a fixed number of action probabilities and applying a validity mask,
+the neural network emits exactly one probability per action node in the input
+graph. Every output therefore represents a valid action, with no special
+positional ordering. This was arguably the most impactful architectural change
+in v15.
 
 The training setup also grew more demanding. The agents no longer face only
 BattleAI: they now play against MMAI opponents being trained in parallel, which
@@ -2302,7 +2322,7 @@ memory-saving measures to keep training within a single GPU's budget.
 
 #### The observation space
 
-The v15 observation is a heterogeneous graph with five node types and 30 edge
+The v15 observation is a heterogeneous graph with 5 node types and 30 edge
 types:
 
 <div class="row justify-content-md-center">
@@ -2314,7 +2334,7 @@ types:
     MMAI v15: Graph diargram (SVG version <a href="{{ 'assets/img/vcmi-gym/v15-graph.svg' | relative_url }}" target="_blank">here</a>)
 </div>
 
-The graph diagram above the available node types, edge types and edge attributes. Node attributes are too many to render and are listed below:
+The graph diagram above shows the available node types, edge types and edge attributes, but it's missing the node attributes: they are too many to render and are instead listed below:
 
 <div class="row justify-content-md-center">
     <div class="col-sm-10">
@@ -2378,26 +2398,22 @@ The graph diagram above the available node types, edge types and edge attributes
         </table>
     </div>
 </div>
-<div class="row justify-content-md-center">
-    <div class="col-sm-10">
-        <p>
-        <br>
-        [1] Damage uncertainty is based on the stack's min/max damage and count. See
-            <a href="https://github.com/vcmi/vcmi/blob/24579d36addd8e169e794f9fe5060f29c8c2e1cf/lib/battle/BattleInfo.cpp#L625-L642">here</a>
-            and
-            <a href="https://github.com/smanolloff/vcmi/blob/d13cc22980bd781315b42e2e4f0294d6a36383f4/AI/MMAI/BAI/v15/graph/nodes/unit.cpp#L273-L277">here</a>
-            for details.
-        </p>
-    </div>
+<div class="caption">
+    [1] Damage uncertainty is based on the stack's min/max damage and count. See
+        <a href="https://github.com/vcmi/vcmi/blob/24579d36addd8e169e794f9fe5060f29c8c2e1cf/lib/battle/BattleInfo.cpp#L625-L642">here</a>
+        and
+        <a href="https://github.com/smanolloff/vcmi/blob/d13cc22980bd781315b42e2e4f0294d6a36383f4/AI/MMAI/BAI/v15/graph/nodes/unit.cpp#L273-L277">here</a>
+        for details.
 </div>
 
 
 That's quite some information available to the agent. It comes at a cost - the
-processing time needed to build the observation is higher, which may
-impact low-tier edge devices (such as 10+ year-old phones), but MMAI can always
-be turned off if needed. Overall, the computational time for a single
-observation plus NN CPU inference processing on a modern device like MacBook
-M2 (2023) is less than 30ms, which is still fine. 
+processing time needed to build the observation is higher, which may impact
+low-tier, or older edge devices, but MMAI can always be turned off if needed.
+Overall, the computational time for a single observation plus NN CPU inference
+processing on a modern device like MacBook M2 (2023) is 50-120ms, which makes
+v15 2-4 times slower than its predecessor. I consider this acceptable, but it
+really depends on who you ask.
 
 #### The NN architecture
 
@@ -2456,11 +2472,11 @@ below:
 
 <div class="row justify-content-md-center">
     <div class="col-sm-8">
-        {% include figure.liquid path="assets/img/vcmi-gym/v15-screenshot-vip.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-screenshot-vip.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
     </div>
 </div>
 <div class="caption">
-    Introducing VIPAI: a scripted AI which guards its shooters.
+    Introducing MMAI's new sparring partner: VIPAI. It is a scripted AI which guards its shooters.
 </div>
 
 The shooter (the "VIP" stack) is guarded by the other stacks, a typical tactic
@@ -2477,75 +2493,142 @@ During training, MMAI v15 achieved a **72% win rate against BattleAI**. This
 number alone is an achievement on its own, however it does not paint the full
 picture:
 
-1. Randomly generated armies are never equal in strength. The "matchmaking" algorithm 
-  contains an inherent randomness which sometimes results in unwinnable battles.
-  For example, 100 sharpshooters (total value 36500) vs. 8 black dragons (total value
-  36040) is not a fair matchup, as the sharpshooters can **never** win such a battle.
-  This means that BattleAI will always win if it controls the black dragons.
-  For this reason, I started evaluating **mirror** matchups where both armies are
-  identical. In the mirror matchup test, MMAI winrate vs. BattleAI jumped to **over 88%**,
-  tested on more than 10K battles with randomly generated, mirrored armies. In the same
-  test setup, MMAI (v15)'s winrate vs. MMAI (v13) reached the formidable 75%. This was
-  a solid proof that the v15 version of the model is vastly superior to its predecessor.
+* Randomly generated armies are never equal in strength. The "matchmaking"
+  algorithm contains an inherent randomness which sometimes results in
+  unwinnable battles. For example, 100 sharpshooters (total value 36500) vs. 8
+  black dragons (total value 36040) is not a fair matchup, as the sharpshooters
+  can **never** win such a battle. Regardless of how good or bad the unit
+  control is, BattleAI will always score some victories . For this reason, I
+  started evaluating **mirror** matchups where both armies are identical. In
+  the mirror matchup test, MMAI winrate vs. BattleAI jumped to **over 88%**,
+  tested on more than 10K battles with randomly generated, mirrored armies.
 
-  <table class="table-sm">
-    <thead>
-      <tr>
-        <th class="text-center">Opponent</th>
-        <th class="text-center">Model</th>
-        <th class="text-center">Winrate</th>
-        <th class="text-center">Setup</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td rowspan=4>BattleAI</td>
-        <td rowspan=2>MMAI (v13)</td>
-        <td>63%</td>
-        <td>random armies (value-matched)</td>
-      </tr>
-      <tr>
-        <td>80%</td>
-        <td>random armies (mirrored)</td>
-      </tr>
-      <tr>
-        <td rowspan=4>MMAI (v15)</td>
-        <td>71%</td>
-        <td>random armies (value-matched)</td>
-      </tr>
-      <tr>
-        <td>89%</td>
-        <td>random armies (mirrored)</td>
-      </tr>
-      <tr>
-        <td rowspan=2>MMAI (v13)</td>
-        <td>62%</td>
-        <td>random armies (mirrored)</td>
-      </tr>
-      <tr>
-        <td>78%</td>
-        <td>random armies (mirrored)</td>
-      </tr>
-    </tbody>
-  </table>
- 
+* MMAI (v15)'s winrate vs. MMAI (v13) reached the formidable 78% in a mirror setup. This was
+  a solid proof that the v15 version of the model is vastly superior to its predecessor, as
+  BattleAI on its own is no longer a representative opponent.
 
-  <!-- TODO: table-->
+<div class="row justify-content-md-center">
+  <div class="col-sm-10">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Model version</th>
+            <th>Opponent</th>
+            <th>Winrate<sup>[1]</sup></th>
+            <th>Winrate<sup>[2]</sup></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>v13 (2015)</td>
+            <td>BattleAI</td>
+            <td>63%</td>
+            <td>80%</td>
+        </tr>
+        <tr>
+            <td>v15 "Graphmind" (2016)</td>
+            <td>BattleAI</td>
+            <td>71%</td>
+            <td>89%</td>
+        </tr>
+        <tr>
+            <td>v15 "Graphmind" (2016)</td>
+            <td>MMAI v13</td>
+            <td>62%</td>
+            <td>78%</td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+</div>
+<div class="caption">
+    Results are based on a test with 10K battles, where the armies on both sides are:
+    <br>
+    <sup>[1]</sup> random-generated, roughly balanced armies (based on total army value)
+    <br>
+    <sup>[2]</sup> random-generated, mirrored armies (identical on both sides)
+</div>
 
-<!-- TODO: screenshot of W&B eval graphs -->
+* When facing an overwhelmingly strong army, MMAI still tends to "end games fast".
+  This is primarily a consequence to the fixed per-step penalty applied to each
+  agent action, but it's not bug - it prevents stalemate scenarios and improves
+  gameplay. However, v15 improves it by introducing a "progressive" penalty which
+  is being applied during training:
 
-That number alone does not tell the whole story. The more important improvement
-is how well v15 performs against other opponents. It achieved a **63% win rate
-against MMAI v13**, even though v13 itself had a 65% win rate against BattleAI.
-In other words, v15 learned to handle a diverse opponent pool rather than merely
-specializing against one scripted bot.
+<div class="row justify-content-md-center">
+    <div class="col-sm-8">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-progressive-reward.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    Progressively increasing penalties applied to every MMAI action encourage it to finish sooner.
+    Interactive plot: <a href="https://www.desmos.com/calculator/i6ym6hqnee" target="_blank">link</a>.
+</div>
 
-I confirmed this by playtesting the model in a single-player game, and I liked
-what I saw. There were still occasional hiccups, but overall it played well. It
-was time to release it to the VCMI community and gather feedback from a much
-broader range of games. I am sure there will still be situations where it seems
-to underperform. Faced with an overwhelming army, for example, I expect it to
-suicide on purpose. I consider that a minor issue — it does not change the result,
-and I have always thought players might appreciate an AI that ends the battle
-quickly instead of prolonging the inevitable. Time—or rather, the player
-base—will tell :)
+The progressive reward is designed to discourage MMAI from running indefinitely
+to avoid defeat, a well-known source of frustration among human players that I
+wanted to prevent.
+
+Compared with a fixed per-step reward, the progressive reward has much less
+influence during the early stages of a battle. However, players may eventually
+learn to exploit this behaviour by continuing to outrun MMAI, knowing that it
+will ultimately stop running and effectively sacrifice itself to avoid
+accumulating further penalties.
+
+This design could be discussed further with the VCMI community. One possible
+approach would be to train a separate MMAI model without this penalty and use it
+at higher VCMI difficulty levels.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-5">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-guard-fail.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm-1"></div>
+    <div class="col-sm-5">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-my-tactic.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    (top) In this example, MMAI fails to protect the elf: it runs away instead of using the dwarves as shown.
+    <br>
+    <br>
+    (bottom)
+    MMAI uses a hit-and-run / kite tactic with its faster units. It's how I would play as well.
+</div>
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-5">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-kite-1.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+    <div class="col-sm-1"></div>
+    <div class="col-sm-5">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-kite-2.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+A few games of playtesting vs. MMAI in single-player game gave me a first-hand
+impression of the model's capabilities. Algthough far from perfect, the v15
+"Graphmind" update makes MMAI a serious opponent which should not be
+underestimated. Try it out yourself with the next VCMI release 😎
+
+#### The release
+
+MMAI v15 “Graphmind” is planned for release in August 2026, when it will become available for public playtesting through VCMI nightly builds.
+The goal is to include it in the official VCMI 1.8 release, currently planned for later this year.
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-stars-github.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+
+---
+
+VCMI and MMAI are open-source projects developed by volunteers in their free time. Our greatest reward is seeing the community enjoy, use, and benefit from what we create.
+
+You can show your support by clicking the <kbd><b>⭐ Star</b></kbd> button in the github repos:
+* [MMAI mod](https://github.com/vcmi-mods/mmai)
+* [vcmi-gym](https://github.com/smanolloff/vcmi-gym) 
+* [vcmi](https://github.com/vcmi/vcmi)
+
+This helps the projects gain visibility and popularity—and helps MMAI climb higher in the VCMI mod list. 🍺
