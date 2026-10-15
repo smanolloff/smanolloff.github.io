@@ -2461,7 +2461,7 @@ exclusively against BattleAI, VCMI's built-in scripted bot. This time the armies
 were generated dynamically and the opponent pool changed as training
 progressed. For the first few days, while the agents learned the basic mechanics
 of the game, they still played against BattleAI. After that I introduced the
-"VIP" AI—a custom scripted bot that protects its shooters—as well as other MMAI
+"VIP" AI — a custom scripted bot that protects its shooters—as well as other MMAI
 models being trained in parallel. The final opponent mix was 10% BattleAI, 40%
 VIPAI and 50% MMAI.
 
@@ -2611,10 +2611,165 @@ impression of the model's capabilities. Algthough far from perfect, the v15
 "Graphmind" update makes MMAI a serious opponent which should not be
 underestimated. Try it out yourself with the next VCMI release 😎
 
-#### The release
+#### First release attempt
 
-MMAI v15 “Graphmind” is planned for release in August 2026, when it will become available for public playtesting through VCMI nightly builds.
-The goal is to include it in the official VCMI 1.8 release, currently planned for later this year.
+MMAI v15 “Graphmind” is planned for release alongside the official VCMI 1.8 release, scheduled for late 2026.
+
+In August 2026, I made the new MMAI available for public playtesting through VCMI nightly builds. The community quickly identified one serious exploit (thanks, @GrafDeVan): hit-and-run.
+
+#### Hit-and-run exploit
+
+Hit-and-run is a simple tactic in which the controller of a fast-moving unit repeatedly:
+
+1. waits
+1. attacks
+1. retreats
+1. repeats
+
+It is most relevant when the player's army strength is concentrated in a single, fast-moving stack. This is not particularly unusual—human players often roam the map with such squads to efficiently clear neutral guards.
+
+As it turned out, MMAI was pretty bad at playing against it. During training, such battles had almost never occurred:
+- Army compositions were randomized, with each army split across one to seven stacks. Single-stack enemy armies accounted for only ~14% of the generated armies.
+- A single-stack army is not necessarily a hit-and-run squad: it must also be _fast_. Only ~17% of vanilla H3 unit types have a speed above 10, reducing the chance of generating a potential hit-and-run army to ~2.4%.
+- Even that is not enough—the tactic is effective only against an army composed predominantly of slow units. This pushes the overall probability even lower, likely below 1%.
+- Most importantly, when all the stars align and suitable army compositions are generated, none of the opponents in those training sessions knows how to execute the tactic. BattleAI does not know how, the VIP bot does not attempt it, and even MMAI rarely discovered it during self-play.
+
+There were therefore two distinct problems to solve:
+1. Set the stage by generating suitable army compositions.
+1. Create a new opponent that actually uses hit-and-run.
+
+Generating the armies was fairly straightforward and largely resembles existing army generation options (regular armies, VIP armies, and now HAR armies), so I will not go into the details.
+
+Inventing a hit-and-run opponent was the hard part. It meant expanding MMAI's roster of scripted opponents. Alongside the "VIP" bot, I introduced the "HAR" (Hit-And-Run) bot. With Codex's invaluable help, I managed to get it up and running in just a couple of days:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-harbot.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    MMAI's new opponent (the "HAR" Bot) in action, making short work of these golems.
+</div>
+
+It looked great. The bot was performing its task well: waiting, attacking, running away, then repeating. The next step was to add it to the MMAI training mix:
+
+<div class="row justify-content-md-center">
+  <div class="col-sm-10">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>MMAI Opponent</th>
+            <th>Weight</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>BattleAI</td>
+            <td>25%</td>
+        </tr>
+        <tr>
+            <td>VIP Bot</td>
+            <td>25%</td>
+        </tr>
+        <tr>
+            <td>HAR Bot</td>
+            <td>25%</td>
+        </tr>
+        <tr>
+            <td>MMAI</td>
+            <td>25%</td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-sparse-plots.png" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    Training stats as MMAI learns to play against its new hit-and-run opponent.
+</div>
+
+It was working: MMAI became progressively better at dealing with the HAR bot. Over two additional weeks of training, its mean reward rose while episode lengths decreased. I then decided to push it further by removing every non-terminal reward except for a small, fixed per-step penalty—effectively switching to a _sparse reward model_.
+
+#### Sparse rewards
+
+Sparse rewards provide an RL agent with minimal hand-crafted guidance: the outcome of the episode does most of the teaching. In this case, the reward scheme became:
+* `reward=1` at the end of a won battle
+* `reward=-1` at the end of a lost battle
+* `reward=-0.02` per step, with all other mid-battle rewards removed
+
+I had always been sceptical of this approach. My previous experiments with sparse rewards, more than a year earlier, had not produced good results: the models failed to develop viable strategies from the final outcome alone. This time, however, I had a much better model design and was using sparse rewards to fine-tune an already capable model. To my surprise, the models did not collapse—their win rates improved even further.
+
+At this point, I no longer found performance against scripted bots particularly informative. MMAI was winning well over 75% of its games against BattleAI, for example, but relying on that opponent any further risked overfitting and was not representative of MMAI's strength. I therefore changed the training mix once again, this time making self-play the dominant component:
+
+<div class="row justify-content-md-center">
+  <div class="col-sm-10">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>MMAI Opponent</th>
+            <th>Weight</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>BattleAI</td>
+            <td>5%</td>
+        </tr>
+        <tr>
+            <td>VIP Bot</td>
+            <td>5%</td>
+        </tr>
+        <tr>
+            <td>HAR Bot</td>
+            <td>5%</td>
+        </tr>
+        <tr>
+            <td>MMAI</td>
+            <td>85%</td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+</div>
+
+Unfortunately, the effectiveness of self-play is _really hard_ to measure. Matches between two MMAI models naturally produce a noisy win rate of around 50%, even if both models are improving over time. Their individual performance against BattleAI may even decline slightly as they learn to generalize rather than overfit to scripted opponents. At this point, the only meaningful way to determine whether MMAI is actually playing better is through feedback from human players :)
+
+That covers most of the changes made during the final fine-tuning phase. Next came a minor bug I stumbled upon while playtesting.
+
+#### The moat observation bug
+
+During a castle siege, I noticed that MMAI tended to move its units into the moat directly in front of damaged—but not yet destroyed—walls:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-moatfix.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    MMAI preemptively positioning units in front of the half-broken wall
+</div>
+
+Apparently, MMAI was _anticipating_ the wall's destruction and positioning its units for an immediate breakthrough. This makes perfect sense for a late-game army, where 70 points of moat damage are negligible to, say, a stack of 15 behemoths. What worried me was seeing the same behavior from a much weaker army. Why would MMAI do that?
+
+The root cause soon became clear: MMAI has no notion of absolute values such as creature health or damage. In MMAI v15, _everything MMAI sees is relative_. It perceives 10 pikemen fighting 10 imps the same way it perceives 1000 pikemen fighting 1000 imps. However, since the moat is not modelled as a graph node that deals damage, it does not carry such inormation. MMAI cannot tell whether a moat will deal significant or negligible damage. It knows that a moat is there, but not how dangerous that it is to the active stack. For 1000 pikemen, the damage is negligible; for 10 pikemen, it is nearly fatal.
+
+Why not simply avoid moats altogether, then? The answer is statistics. MMAI trains with auto-generated armies whose total values range from 5K to 500K, so the average army value it encounters is roughly 250K. For reference, one pikeman has a value of 31 and one angel a value of 1,812—making the average training army worth about 140 angels. At that scale, moat damage is indeed negligible. MMAI had therefore learned that stepping into a moat is usually a worthwhile trade if it enables better positioning.
+
+This was a design flaw without an easy fix. Adding moat damage to the observation space would have required retraining the model from scratch. As a workaround, I implemented a runtime check that compares the moat damage with the active stack's total HP. If the damage exceeds a configurable percentage, the corresponding "move action" nodes are removed from the graph, effectively making those moat hexes inaccessible to MMAI. This still allows MMAI to accept minor moat damage when tactically useful, while preventing disproportionately costly moves. The default threshold is 8% of the stack's HP. Hopefully, that will be enough to resolve the issue.
+
+#### Second release attempt
+
+Following these fixes, I updated and resubmitted the MMAI v15 "Graphmind" [VCMI PR](https://github.com/vcmi/vcmi/pull/7654) on October 15. The newly tuned models are now available to the VCMI community for early testing. If no major issues surface this time around, I can move forward with the official release 🤞.
+
+---
+
+VCMI and MMAI are open-source projects developed by volunteers in their free time. Our greatest reward is seeing the community enjoy, use, and benefit from what we create.
+
 
 <div class="row justify-content-md-center">
     <div class="col-sm-6">
@@ -2622,13 +2777,10 @@ The goal is to include it in the official VCMI 1.8 release, currently planned fo
     </div>
 </div>
 
----
+You can show your support by clicking the <kbd><b>⭐ Star</b></kbd> button in the GitHub repositories:
 
-VCMI and MMAI are open-source projects developed by volunteers in their free time. Our greatest reward is seeing the community enjoy, use, and benefit from what we create.
-
-You can show your support by clicking the <kbd><b>⭐ Star</b></kbd> button in the github repos:
 * [MMAI mod](https://github.com/vcmi-mods/mmai)
-* [vcmi-gym](https://github.com/smanolloff/vcmi-gym) 
+* [vcmi-gym](https://github.com/smanolloff/vcmi-gym)
 * [vcmi](https://github.com/vcmi/vcmi)
 
 This helps the projects gain visibility and popularity—and helps MMAI climb higher in the VCMI mod list. 🍺
