@@ -2711,7 +2711,7 @@ Another benefit of the sparse reward system was that the model's predicted _valu
 
 #### Self-play, all the way
 
-At this point, I no longer found performance against scripted bots particularly informative. It had already learned to exploit the predict their moves: MMAI was winning well over 75% of its games against BattleAI, for example, but relying on that opponent any further risked overfitting and was not representative of MMAI's strength. I therefore changed the training mix once again, this time making self-play the dominant component:
+At this point, I no longer found performance against scripted bots particularly informative. MMAI had already learned to predict their moves: it was winning well over 75% of its games against BattleAI, for example, but relying on that opponent any further risked overfitting and was not representative of MMAI's strength. I therefore changed the training mix once again, this time making self-play the dominant component:
 
 <div class="row justify-content-md-center">
   <div class="col-sm-10">
