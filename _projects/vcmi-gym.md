@@ -2769,6 +2769,8 @@ Why not simply avoid moats altogether, then? The answer is statistics. MMAI trai
 
 This was a design flaw without an easy fix. Adding moat damage to the observation space would have required retraining the model from scratch. As a workaround, I implemented a runtime check that compares the moat damage with the active stack's total HP. If the damage exceeds a configurable percentage, the corresponding "move action" nodes are removed from the graph, effectively making those moat hexes inaccessible to MMAI. This still allows MMAI to accept minor moat damage when tactically useful, while preventing disproportionately costly moves. The default threshold is 8% of the stack's HP. Hopefully, that will be enough to resolve the issue.
 
+Unfortunately, castle turrets present a similar problem: MMAI knows they exist, but not how much damage they can inflict. Unlike with moats, there is no straightforward workaround. Future versions of MMAI will need to model turret and moat damage explicitly so that the agent can properly assess the threat.
+
 #### Second release attempt
 
 Following these fixes, I updated and resubmitted the MMAI v15 "Graphmind" [VCMI PR](https://github.com/vcmi/vcmi/pull/7654) on October 15. The newly tuned models are now available to the VCMI community for early testing. If no major issues surface this time around, I can move forward with the official release 🤞.
