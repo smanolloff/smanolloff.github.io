@@ -2640,7 +2640,7 @@ There were therefore two distinct problems to solve:
 
 Generating the armies was fairly straightforward and largely resembles existing army generation options (regular armies, VIP armies, and now HAR armies), so I will not go into the details.
 
-Inventing a hit-and-run opponent was the hard part. It meant expanding MMAI's roster of scripted opponents. Alongside the "VIP" bot, I introduced the "HAR" (Hit-And-Run) bot. With Codex's invaluable help, I managed to get it up and running in just a couple of days:
+Creating a hit-and-run opponent was harder than it might seem. Simply adding a crude scripted bot would not be enough—MMAI needed a capable opponent from which it could actually learn. To complement the "VIP" bot, I introduced the "HAR" (Hit-And-Run) bot. With invaluable help from Codex, I managed to get it up and running in a matter of days:
 
 <div class="row justify-content-md-center">
     <div class="col-sm-6">
@@ -2698,13 +2698,20 @@ It was working: MMAI became progressively better at dealing with the HAR bot. Ov
 #### Sparse rewards
 
 Sparse rewards provide an RL agent with minimal hand-crafted guidance: the outcome of the episode does most of the teaching. In this case, the reward scheme became:
+* `reward=-0.02` per step, with all other mid-battle rewards removed
 * `reward=1` at the end of a won battle
 * `reward=-1` at the end of a lost battle
-* `reward=-0.02` per step, with all other mid-battle rewards removed
+* An additional reward ranging from `-1` to `1`, combining losses on both sides: losing none or all of its own units contributes `0` or `-1`, while eliminating none or all of the enemy units contributes `0` or `1`
 
 I had always been sceptical of this approach. My previous experiments with sparse rewards, more than a year earlier, had not produced good results: the models failed to develop viable strategies from the final outcome alone. This time, however, I had a much better model design and was using sparse rewards to fine-tune an already capable model. To my surprise, the models did not collapse—their win rates improved even further.
 
-At this point, I no longer found performance against scripted bots particularly informative. MMAI was winning well over 75% of its games against BattleAI, for example, but relying on that opponent any further risked overfitting and was not representative of MMAI's strength. I therefore changed the training mix once again, this time making self-play the dominant component:
+Another benefit of the sparse reward system was that the model's predicted _value_ for the current game state became much easier to interpret. For example, a value of `0.9` indicates that the model is highly confident it will win the battle. For now, this estimate is merely logged as `value=...`. It could eventually help inform retreat decisions, but remains unused for two reasons:
+1. It has not yet been thoroughly tested.
+1. VCMI's retreat decision-making API does not provide a way to pass in such a value.
+
+#### Self-play, all the way
+
+At this point, I no longer found performance against scripted bots particularly informative. It had already learned to exploit the predict their moves: MMAI was winning well over 75% of its games against BattleAI, for example, but relying on that opponent any further risked overfitting and was not representative of MMAI's strength. I therefore changed the training mix once again, this time making self-play the dominant component:
 
 <div class="row justify-content-md-center">
   <div class="col-sm-10">
