@@ -1219,7 +1219,7 @@ and the initial integration allowed choosing MMAI only as the **neutral AI**.
     MMAI selectable as a NeutralAI in the VCMI launcher
 </div>
 
-Key characteristics of the initial submission model:
+Key characteristics of the initial submission model from 2024:
 
 - **Architecture:** a small variation of the neural network described earlier.
 - **Performance:**
@@ -2773,7 +2773,22 @@ Unfortunately, castle turrets present a similar problem: MMAI knows they exist, 
 
 #### Second release attempt
 
-Following these fixes, I updated and resubmitted the MMAI v15 "Graphmind" [VCMI PR](https://github.com/vcmi/vcmi/pull/7654) on October 15. The newly tuned models are now available to the VCMI community for early testing. If no major issues surface this time around, I can move forward with the official release 🤞.
+Following these fixes, I updated and resubmitted the MMAI v15 "Graphmind" [VCMI PR](https://github.com/vcmi/vcmi/pull/7654) which got merged to `develop` branch in October 18th. The newly tuned models are now available to the VCMI community for playtesting. If no major issues surface this time around, it will be shipped with VCMI's 1.8 release in December 2026 🤞.
+
+#### MMAI advisor (POC)
+
+I've always thought MMAI would be useful as an in-game advisor, analysing the battlefield and recommending actions in a way players can easily understand. I managed to put together a proof-of-concept UI overlay to showcase the idea:
+
+<div class="row justify-content-md-center">
+    <div class="col-sm-6">
+        {% include figure.liquid path="assets/img/vcmi-gym/v15-ui-advisor.gif" class="img-fluid rounded z-depth-1" zoomable=true %}
+    </div>
+</div>
+<div class="caption">
+    An in-game advisor powered by MMAI. The confidence meter at the top shows the model's predicted battle outcome, while the battlefield heatmap visualizes the action probabilities. The model's most preferred action is outlined in gold.
+</div>
+
+Unfortunately, my proposal did not gain support from the VCMI development community, so it *will not* be included in VCMI 1.8. Still, I think it deserves an honorable mention here.
 
 ---
 
